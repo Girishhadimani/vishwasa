@@ -2710,6 +2710,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateHeroDonateButtonText();
 });
 
+// Immediate rendering fallback to ensure medical appeals cards appear instantly
+renderCampaigns();
+
+
 
 
 

@@ -225,6 +225,12 @@ body {
     background: #f0fdf4;
     color: #0d9488;
     transform: translateX(4px);
+/* Medical Appeals Campaign Grid Layout */
+.campaign-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
 /* User Badge in Nav */
