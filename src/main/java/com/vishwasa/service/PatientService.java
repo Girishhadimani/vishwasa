@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Service
@@ -22,15 +23,16 @@ public class PatientService {
 
     public Patient registerPatient(PatientRegistrationRequest request, Long userId) {
         String email = request.getEmail() != null ? request.getEmail() : "patient_" + System.currentTimeMillis() + "@vishwasa.org";
+        String district = request.getDistrict() != null ? request.getDistrict() : "Belagavi";
 
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> userRepository.findByUsername(email)
                 .orElseGet(() -> userRepository.save(User.builder()
                         .username(email)
                         .email(email)
-                        .fullName(request.getFullName())
-                        .phoneNumber(request.getPhoneNumber())
-                        .district(request.getDistrict())
+                        .fullName(request.getFullName() != null ? request.getFullName() : "Patient Account")
+                        .phoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber() : "+91 98450 11223")
+                        .district(district)
                         .roles(Set.of(Role.PATIENT))
                         .password(passwordEncoder.encode(request.getPassword() != null ? request.getPassword() : "password123"))
                         .enabled(true)
@@ -46,14 +48,14 @@ public class PatientService {
                 .orElseGet(() -> patientRepository.save(Patient.builder()
                         .userId(user.getId())
                         .aadhaarNumber(aadhaar)
-                        .fullName(request.getFullName())
-                        .dateOfBirth(request.getDateOfBirth())
-                        .gender(request.getGender())
-                        .address(request.getAddress())
-                        .village(request.getVillage())
-                        .district(request.getDistrict())
-                        .state(request.getState())
-                        .pincode(request.getPincode())
+                        .fullName(request.getFullName() != null ? request.getFullName() : "Patient Account")
+                        .dateOfBirth(request.getDateOfBirth() != null ? request.getDateOfBirth() : LocalDate.of(1995, 1, 1))
+                        .gender(request.getGender() != null ? request.getGender() : "Unspecified")
+                        .address(request.getAddress() != null ? request.getAddress() : "Belagavi District")
+                        .village(request.getVillage() != null ? request.getVillage() : district)
+                        .district(district)
+                        .state(request.getState() != null ? request.getState() : "Karnataka")
+                        .pincode(request.getPincode() != null ? request.getPincode() : "590001")
                         .emergencyContactName(request.getEmergencyContactName())
                         .emergencyContactPhone(request.getPhoneNumber())
                         .familyIncome(request.getFamilyIncome())

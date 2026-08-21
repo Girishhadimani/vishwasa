@@ -22,24 +22,26 @@ public class VolunteerService {
         }
 
         if (volunteerRepository.findByUserId(userId).isPresent()) {
-            throw new RuntimeException("Volunteer profile already exists for this user");
+            return volunteerRepository.findByUserId(userId).get();
         }
+
+        String district = request.getDistrict() != null ? request.getDistrict() : "Belagavi";
 
         Volunteer volunteer = Volunteer.builder()
                 .userId(userId)
-                .address(request.getAddress())
-                .village(request.getVillage())
-                .district(request.getDistrict())
-                .state(request.getState())
-                .pincode(request.getPincode())
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
-                .verificationRadiusKm(request.getVerificationRadiusKm())
+                .address(request.getAddress() != null ? request.getAddress() : "Belagavi Field Office")
+                .village(request.getVillage() != null ? request.getVillage() : district)
+                .district(district)
+                .state(request.getState() != null ? request.getState() : "Karnataka")
+                .pincode(request.getPincode() != null ? request.getPincode() : "590001")
+                .latitude(request.getLatitude() != null ? request.getLatitude() : 15.8497)
+                .longitude(request.getLongitude() != null ? request.getLongitude() : 74.5086)
+                .verificationRadiusKm(request.getVerificationRadiusKm() != null ? request.getVerificationRadiusKm() : 25)
                 .available(true)
                 .completedVerifications(0)
                 .activeVerifications(0)
                 .reliabilityScore(5.0)
-                .languages(request.getLanguages())
+                .languages(request.getLanguages() != null ? request.getLanguages() : "Kannada, English")
                 .occupation(request.getOccupation())
                 .education(request.getEducation())
                 .verified(false)

@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -83,7 +84,13 @@ public class DatabaseInitializer implements CommandLineRunner {
                 .userId(patientUser.getId())
                 .aadhaarNumber("482910492840")
                 .fullName("Aarav Kumar (Age 6)")
+                .dateOfBirth(LocalDate.of(2018, 5, 15))
+                .gender("Male")
+                .address("Tilakwadi, Belagavi")
+                .village("Belagavi")
                 .district("Belagavi")
+                .state("Karnataka")
+                .pincode("590006")
                 .identityVerified(true)
                 .verificationMethod("Aadhaar UIDAI")
                 .verificationReference("REF-UIDAI-88402")
@@ -94,7 +101,13 @@ public class DatabaseInitializer implements CommandLineRunner {
         if (volunteerRepository.count() == 0) {
             volunteerRepository.save(Volunteer.builder()
                 .userId(volUser.getId())
+                .address("Camp Area, Belagavi")
+                .village("Belagavi")
                 .district("Belagavi")
+                .state("Karnataka")
+                .pincode("590001")
+                .latitude(15.8497)
+                .longitude(74.5086)
                 .verified(true)
                 .available(true)
                 .reliabilityScore(5.0)
