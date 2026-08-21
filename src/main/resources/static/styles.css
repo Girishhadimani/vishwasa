@@ -150,14 +150,14 @@ body {
 }
 
 .nav-item:hover {
-    color: var(--primary-green);
-    background: rgba(13, 148, 136, 0.08);
+    color: var(--primary-green) !important;
+    background: rgba(13, 148, 136, 0.1) !important;
 }
 
 .nav-item.active {
-    color: #ffffff !important;
-    background: var(--primary-green) !important;
-    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+    color: var(--primary-green) !important;
+    background: rgba(13, 148, 136, 0.12) !important;
+    font-weight: 800;
 }
 
 /* User Badge in Nav */
