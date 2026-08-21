@@ -1130,7 +1130,76 @@ function renderRoleDashboard(role) {
                     </div>
                 </div>
             </div>
+
+            <!-- Patient Donor Contributions Table -->
+            <div class="dash-card" style="border-top: 4px solid #ec4899; margin-top: 2rem;">
+                <div class="dash-card-header">
+                    <div>
+                        <div class="dash-card-title">💖 Compassionate Donors & Well-Wishers Who Funded Your Care (5 Contributions)</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Direct contributions and grants disbursed directly to ${pHospital} for your medical treatment.</p>
+                    </div>
+                    <span class="dash-status-pill status-active">100% DISBURSED TO HOSPITAL</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Donor Name / Supporter</th>
+                                <th>Amount Funded</th>
+                                <th>Payment Method</th>
+                                <th>Donor Message & Blessing</th>
+                                <th>Transaction Ref & Date</th>
+                                <th>Send Gratitude</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Infosys CSR Foundation</strong><br><span style="font-size: 0.75rem; color: #ec4899; font-weight: 700;">Corporate CSR Grant</span></td>
+                                <td style="font-size: 1.1rem; font-weight: 800; color: #0d9488;">₹1,50,000</td>
+                                <td><span class="dash-status-pill status-active">CSR MoU Grant</span></td>
+                                <td style="font-size: 0.85rem; font-style: italic; color: #334155;">"Praying for your complete and speedy recovery! Stay blessed."</td>
+                                <td><code>TXN-CSR-2026-INF08</code><br><span style="font-size: 0.75rem; color: var(--text-muted);">21 Aug 2026</span></td>
+                                <td><button class="btn btn-outline-green btn-sm" onclick="sendPatientThankYouNote('Infosys CSR Foundation')">💌 Thank Donor</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dr. S. Kulkarni</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">Philanthropist • Belagavi</span></td>
+                                <td style="font-size: 1.1rem; font-weight: 800; color: #0d9488;">₹1,00,000</td>
+                                <td><span class="dash-status-pill status-active">Razorpay Gateway</span></td>
+                                <td style="font-size: 0.85rem; font-style: italic; color: #334155;">"Wishing good health and strength to Aarav and family."</td>
+                                <td><code>TXN-DON-9002</code><br><span style="font-size: 0.75rem; color: var(--text-muted);">20 Aug 2026</span></td>
+                                <td><button class="btn btn-outline-green btn-sm" onclick="sendPatientThankYouNote('Dr. S. Kulkarni')">💌 Thank Donor</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anand Vardhan</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">Individual Donor</span></td>
+                                <td style="font-size: 1.1rem; font-weight: 800; color: #0d9488;">₹50,000</td>
+                                <td><span class="dash-status-pill status-active">Direct UPI (GPay)</span></td>
+                                <td style="font-size: 0.85rem; font-style: italic; color: #334155;">"Every life is precious. May God bless you with health!"</td>
+                                <td><code>TXN-UPI-88402910</code><br><span style="font-size: 0.75rem; color: var(--text-muted);">19 Aug 2026</span></td>
+                                <td><button class="btn btn-outline-green btn-sm" onclick="sendPatientThankYouNote('Anand Vardhan')">💌 Thank Donor</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Anonymous Well-Wisher</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">Community Donor</span></td>
+                                <td style="font-size: 1.1rem; font-weight: 800; color: #0d9488;">₹25,000</td>
+                                <td><span class="dash-status-pill status-active">Direct UPI (PhonePe)</span></td>
+                                <td style="font-size: 0.85rem; font-style: italic; color: #334155;">"Speedy recovery! Sending prayers from Hubballi."</td>
+                                <td><code>TXN-UPI-99201948</code><br><span style="font-size: 0.75rem; color: var(--text-muted);">18 Aug 2026</span></td>
+                                <td><button class="btn btn-outline-green btn-sm" onclick="sendPatientThankYouNote('Anonymous Well-Wisher')">💌 Thank Donor</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ramesh Patil</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">Field Inspector Contribution</span></td>
+                                <td style="font-size: 1.1rem; font-weight: 800; color: #0d9488;">₹17,000</td>
+                                <td><span class="dash-status-pill status-active">Bank NEFT</span></td>
+                                <td style="font-size: 0.85rem; font-style: italic; color: #334155;">"Honored to serve as your volunteer and contribute."</td>
+                                <td><code>TXN-NFT-20260817</code><br><span style="font-size: 0.75rem; color: var(--text-muted);">17 Aug 2026</span></td>
+                                <td><button class="btn btn-outline-green btn-sm" onclick="sendPatientThankYouNote('Ramesh Patil')">💌 Thank Donor</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         `;
+
     } else if (role === 'ASHA_WORKER') {
         // Collect pending volunteers in ASHA zone
         const pendingVolunteers = pendingUserApprovalsStore.filter(u => u.role === 'VOLUNTEER' && u.status === 'PENDING_FOUNDATION_APPROVAL');
@@ -2427,6 +2496,10 @@ async function checkBackendHealth() {
     }
 }
 
+function sendPatientThankYouNote(donorName) {
+    alert(`💌 Gratitude Delivered! Your heartfelt Thank-You message has been dispatched to ${donorName}. Thank you for sharing your love and gratitude!`);
+}
+
 // Initialize Donation Presets & Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     const presetBtns = document.querySelectorAll('.preset-btn');
@@ -2440,5 +2513,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     updateHeroDonateButtonText();
 });
+
 
 
