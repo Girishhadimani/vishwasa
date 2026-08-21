@@ -1098,3 +1098,118 @@ footer {
     color: #64748b;
     font-size: 0.85rem;
 }
+
+/* ==========================================================================
+   📱 MOBILE & TABLET RESPONSIVE DESIGN SYSTEM
+   ========================================================================== */
+
+@media (max-width: 992px) {
+    .ngo-header {
+        padding: 0.8rem 1.5rem;
+    }
+    
+    .hero-content-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+    
+    .hero-headline {
+        font-size: 2.6rem;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .ngo-header {
+        padding: 0.75rem 1rem;
+        flex-wrap: wrap;
+    }
+
+    .nav-links {
+        display: none; /* Hide dense nav desktop links on mobile */
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+    }
+
+    .ngo-hero {
+        padding: 3rem 1.25rem;
+    }
+
+    .hero-headline {
+        font-size: 2.1rem;
+    }
+
+    .hero-subtext {
+        font-size: 1rem;
+    }
+
+    .hero-donate-card {
+        padding: 1.5rem;
+    }
+
+    .amount-presets {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+
+    .preset-btn {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+
+    .model-card-grid, .hospital-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .ngo-modal {
+        width: 95%;
+        padding: 1.5rem;
+        max-height: 92vh;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    footer {
+        padding: 3rem 1.5rem 1.5rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+    }
+
+    table {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-headline {
+        font-size: 1.8rem;
+    }
+
+    .btn-ngo-primary, .btn-ngo-secondary {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .hero-photo-showcase {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
