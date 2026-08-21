@@ -2197,16 +2197,98 @@ async function generateAndDownloadReport(reportType, patientName) {
     }
 }
 
+// Donation Amount & Mode State
+let currentDonationAmount = 1000;
+let currentDonationMode = 'once';
+
+function toggleDonationMode(mode) {
+    currentDonationMode = mode;
+    const buttons = document.querySelectorAll('.type-toggle .type-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    if (mode === 'monthly') {
+        if (buttons[1]) buttons[1].classList.add('active');
+    } else {
+        if (buttons[0]) buttons[0].classList.add('active');
+    }
+    updateHeroDonateButtonText();
+}
+
+function selectDonationAmount(amount) {
+    currentDonationAmount = parseInt(amount) || 1000;
+    const presetBtns = document.querySelectorAll('.preset-btn');
+    presetBtns.forEach(btn => {
+        const btnAmt = parseInt(btn.getAttribute('data-amount'));
+        if (btnAmt === currentDonationAmount) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    updateHeroDonateButtonText();
+    updateQrAmount(currentDonationAmount);
+}
+
+function updateHeroDonateButtonText() {
+    const btn = document.getElementById('heroDonateSubmitBtn');
+    if (btn) {
+        const formatted = currentDonationAmount.toLocaleString('en-IN');
+        const label = currentDonationMode === 'monthly' ? `Give ₹${formatted} Monthly 💖` : `Give ₹${formatted} Once`;
+        btn.innerText = label;
+    }
+}
+
+function updateQrAmount(amount) {
+    const val = parseInt(amount) || 1000;
+    currentDonationAmount = val;
+
+    // Update input field if present
+    const input = document.getElementById('payAmountInput');
+    if (input && parseInt(input.value) !== val) {
+        input.value = val;
+    }
+
+    // Update QR Code Image
+    const qrImg = document.getElementById('upiQrCodeImg');
+    if (qrImg) {
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=ghadimani145@okaxis%26pn=Vishwasa%20Foundation%26cu=INR%26am=${val}`;
+    }
+
+    // Update Deep Link
+    const deepLink = document.getElementById('upiAppDeepLink');
+    if (deepLink) {
+        deepLink.href = `upi://pay?pa=ghadimani145@okaxis&pn=Vishwasa%20Foundation&cu=INR&am=${val}`;
+    }
+
+    // Update Razorpay Modal text
+    const rzpText = document.getElementById('rzpModalAmountText');
+    if (rzpText) {
+        rzpText.innerText = `₹${val.toLocaleString('en-IN')}`;
+    }
+
+    updateHeroDonateButtonText();
+}
+
 // Open / Close Modals
-function openDonateModal(id, title) {
-    document.getElementById('modalCampaignTitle').innerText = title || "Complete Genuine Payment";
-    document.getElementById('donateModal').classList.add('active');
-    updateQrAmount(selectedAmount);
+function openDonateModal(id, title, amount) {
+    if (amount) {
+        currentDonationAmount = parseInt(amount);
+    }
+    const modalTitle = document.getElementById('modalCampaignTitle');
+    if (modalTitle) {
+        modalTitle.innerText = title || "Complete Genuine Payment";
+    }
+    const modal = document.getElementById('donateModal');
+    if (modal) {
+        modal.classList.add('active');
+    }
+    updateQrAmount(currentDonationAmount);
 }
 
 function closeDonateModal() {
     document.getElementById('donateModal').classList.remove('active');
 }
+
 
 function openLoginModal() {
     document.getElementById('loginModal').classList.add('active');
@@ -2344,4 +2426,19 @@ async function checkBackendHealth() {
         console.log("Vishwasa Platform active");
     }
 }
+
+// Initialize Donation Presets & Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const presetBtns = document.querySelectorAll('.preset-btn');
+    presetBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const amt = e.currentTarget.getAttribute('data-amount');
+            if (amt) {
+                selectDonationAmount(amt);
+            }
+        });
+    });
+    updateHeroDonateButtonText();
+});
+
 
