@@ -5,14 +5,13 @@
 ![Vishwasa Logo](src/main/resources/static/images/brand-logo.png)
 
 ### **Hope, Healing & Humanity.**
-*A Section 8 Registered Non-Profit Healthcare & Medical Crowdfunding Platform*
+*A Section 8 Registered Non-Profit Healthcare & Medical Crowdfunding Platform*  
 **Belagavi Headquarters • Serving North Karnataka**
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg?style=flat-square)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg?style=flat-square)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue.svg?style=flat-square)](https://www.postgresql.org/)
-[![Geoapify](https://img.shields.io/badge/Geoapify-Maps-teal.svg?style=flat-square)](https://www.geoapify.com/)
-[![Razorpay](https://img.shields.io/badge/Razorpay-Payment%20Gateway-blue.svg?style=flat-square)](https://razorpay.com/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-Maps-teal.svg?style=flat-square)](https://leafletjs.com/)
 [![License](https://img.shields.io/badge/License-Section%208%20NGO-purple.svg?style=flat-square)](#)
 
 </div>
@@ -21,9 +20,9 @@
 
 ## 📖 Executive Summary
 
-**Vishwasa Healthcare Foundation** is an enterprise-grade digital health governance and medical crowdfunding platform operating across North Karnataka (Belagavi, Hubballi-Dharwad, Vijayapura, Bagalkote). 
+**Vishwasa Healthcare Foundation** is an enterprise-grade digital health governance and medical crowdfunding platform operating across North Karnataka (Belagavi, Hubballi-Dharwad, Vijayapura, Bagalkote, Haveri, Gadag).
 
-The platform bridges critical healthcare gaps by combining **door-to-door volunteer field audits**, **specialist doctor clinical evaluations**, **100% direct hospital disbursement**, and **corporate CSR grant management**.
+The platform bridges critical healthcare gaps by combining **door-to-door volunteer field audits**, **specialist doctor clinical evaluations**, **Foundation Admin hospital allocations**, **5-stage clinical treatment lifecycle tracking**, **100% direct hospital fund disbursement**, and **corporate CSR grant management**.
 
 ---
 
@@ -44,10 +43,9 @@ graph TD
     
     subgraph "Persistence & Third-Party Integrations"
         Auth & PatientSvc & DonSvc --> DB[("🐘 PostgreSQL 18 Database")]
-        DonSvc --> Rzp["💳 Razorpay Payment SDK"]
         DonSvc --> UPI["⚡ Direct UPI (ghadimani145@okaxis)"]
-        Auth --> Resend["📧 Resend Outbound Email API"]
-        User --> Geoapify["📍 Leaflet.js Geoapify GPS Maps"]
+        Auth --> EmailSvc["📧 Automated Outbound Email Service"]
+        User --> MapEngine["📍 Leaflet Regional Healthcare Maps"]
         User --> PDF["📄 html2canvas + jsPDF Exporter"]
     end
 ```
@@ -56,99 +54,109 @@ graph TD
 
 ## 🌟 Core Modules & Enterprise Features
 
-### 1. 🛡️ Mandatory Legitimate Document Verification & Board Audit Queue
-- **Non-Donor Identity Audit:** Every Patient, Volunteer, Doctor, and ASHA Worker registering on the platform must submit a legitimate identity document:
-  - **Patients:** Aadhaar Card (12-Digit UIDAI) / BPL Ration Card / Ayushman Bharat Card
-  - **Volunteers:** Voter ID Card (EPIC) / Aadhaar Card / Driving License
-  - **Doctors:** Karnataka Medical Council (KMC) Registration Certificate / National Medical Commission (NMC) License
-- **Executive Board Approval Queue:** Accounts are created with status `PENDING_FOUNDATION_APPROVAL` and queued in the **Foundation Admin Dashboard** (`admin@vishwasa.org`) and **ASHA Worker Verification Desk**.
-- **Automated Outbound Email Trigger:** Approving an account automatically dispatches a role-customized welcome & sign-in authorization email via the **Resend API**.
+### 1. 📋 Verified Patient Store & 5-Stage Clinical Treatment Lifecycle
+- **Approved Patients Registry:** Approved patients are automatically indexed into the **Verified & Approved Patients Store**.
+- **5-Stage Clinical Lifecycle:**
+  1. 📄 **Document Audit Approved** — Identity and medical documents verified by Foundation Board.
+  2. 🏥 **Partner Hospital Allocated** — Allocated to an accredited super-speciality hospital.
+  3. 🩺 **Clinical Evaluation & Surgery** — Medical board review and active surgical operation.
+  4. 💚 **Fund Disbursed & Recovery** — Direct hospital disbursement and ICU recovery monitoring.
+  5. 🎉 **Fit for Discharge & Closed** — Patient fully recovered and discharged with itemized bill receipt.
+- **Stage Progress Tracking:** Features a gradient stage progress bar with 1-click stage advancement (`⚡ Advance Stage`) and instant PDF summary generation.
 
-### 2. 🏥 Hospital Bed Allocation & Itemized Discharge Billing
-- **Hospital Bed Tracking:** Hospital Admin (`hospital.admin@vishwasa.org`) manages active patient bed allocations (e.g. `ICU-Bed #04`, `Cardiac-Ward Bed #12`) and surgical procedures.
-- **⚡ Complete Treatment & Discharge:** Clicking **`Discharge & Generate Bill`** marks the patient's treatment complete and auto-generates the **Itemized Hospital Discharge Bill Receipt PDF**.
-- **Multi-Portal Real-Time Synchronization:**
-  - **Hospital Admin:** Updates status to `✅ DISCHARGED & PAID`.
-  - **Foundation Admin:** Disbursed & completed ledger update.
-  - **Patient Portal:** Displays `✅ FIT FOR DISCHARGE` with downloadable itemized bill PDF.
-  - **Donor Portal:** Displays completed treatment discharge receipt for supported cases.
+### 2. 🏥 Partner Hospital Allocation Engine
+- **Centralized Hospital Allocation:** Patients register without selecting a hospital; accredited hospitals are allocated by Foundation Board Admin upon document verification audit.
+- **Accredited Network Hospitals:**
+  - *KLES Dr. Prabhakar Kore Hospital (Belagavi)*
+  - *Tatwadarsha Hospital (Hubballi-Dharwad)*
+  - *SDM Medical College & Hospital (Dharwad)*
+  - *BLDE Shri B. M. Patil Medical College (Vijayapura)*
+- **Hospital Admin Dashboard Sync:** Allocated patients immediately reflect in the **Hospital Admin Dashboard** (`role === 'HOSPITAL_ADMIN'`) for bed assignment and surgical admission.
 
-### 3. 🏢 Corporate CSR Sponsor & Volunteer Honorarium Ledger
-- **CSR Grant Management:** Manages corporate grants (e.g., Infosys Foundation ₹50,00,000, Wipro Cares ₹35,00,000).
-- **Volunteer Stipend Ledger:** Tracks stipend & honorarium transactions (`TX-CSR-501`) paid to field inspectors for conducting door-to-door rural verification audits.
-- **Village Health Campaigns:** Tracks CSR-funded outreach (Maternal Antenatal Care, Menstrual Hygiene Kit Distribution, Pediatric Cardiac Surgeries).
+### 3. 👥 Nearby Field Volunteer Inspector Allocation
+- **District-Based Proximity Allocation:** Foundation Admin allocates nearby field volunteer inspectors based on geographic district location.
+- **Volunteer Field Dashboard Sync:** Assigned audit tasks sync directly to the **Field Volunteer Inspector Dashboard** (`role === 'VOLUNTEER'`) with 1-click house verification completion and audit PDF generation.
 
-### 4. 💳 Razorpay Gateway & Direct UPI Integration
-- **Razorpay Interactive Modal Window (`#razorpayModalWindow`):** Official modal supporting Credit/Debit Cards, UPI, and Netbanking.
-- **Target UPI Payment VPA:** Direct UPI transfers configured to **`ghadimani145@okaxis`** with live QR code generation (`api.qrserver.com`) and GPay/PhonePe deep linking.
-- **50% Tax Exemption (80G):** Auto-generates official 80G tax exemption receipts under Section 80G of the Income Tax Act 1961.
+### 4. 🛡️ Mandatory Identity Document Audit Queue
+- **Non-Donor Verification:** Every Patient, Volunteer, Doctor, and ASHA Worker must submit a valid identity document (Aadhaar Card, BPL Ration Card, EPIC Voter ID, KMC Registration License).
+- **Foundation Board Audit Queue:** New accounts are held in status `PENDING_FOUNDATION_APPROVAL` for board audit.
+- **Automated Outbound Email Trigger:** Account approval dispatches a welcome authorization email to the user.
 
-### 5. 📍 Real Geoapify GPS District Map Engine
-- **Geoapify Tile Integration:** Powered by Geoapify API Key `bb0bf950c55c4be0ac393f97a43ea670` & Leaflet.js tiles.
-- **Interactive Pins:** Interactive GPS map markers for accredited partner hospitals (🏥) and field volunteers (👤) across Belagavi, Hubballi-Dharwad, Vijayapura, and Bagalkote.
+### 5. 🏢 Corporate CSR Sponsor & 80G Tax Exemption
+- **Corporate CSR Grants:** Manages corporate healthcare MoUs and grants (e.g., Infosys Foundation, Wipro Cares, TCS Foundation).
+- **Exclusive 80G Corporate Tax Exemption:** 80G tax exemption certificates under Section 80G of the Income Tax Act 1961 are reserved exclusively for Corporate CSR Sponsors and Grants.
+- **Volunteer Stipend Ledger:** Manages honorarium payments (`TX-CSR-501`) for rural field inspectors.
+
+### 6. 💳 Direct UPI Payment Engine & Automatic PDF Receipts
+- **Target UPI VPA:** Configured to target UPI ID **`ghadimani145@okaxis`** with dynamic QR generation and deep-linking support for UPI apps (GPay, PhonePe, Paytm).
+- **Auto PDF Generation:** Submitting a UPI donation automatically generates and downloads an official **Patient Aid Payment & Donation Receipt PDF**.
+
+### 7. 📍 Regional Healthcare Coverage Map
+- **Regional Coverage Pins:** Interactive map markers showcasing accredited partner hospitals and active field volunteers across North Karnataka.
 
 ---
 
 ## 👥 8 Specialized User Role Portals
 
-| Role | Username / Email | Password | Primary Portal Capabilities |
-| :--- | :--- | :--- | :--- |
-| **🧑‍🦽 Patient** | `patient@vishwasa.org` | `password123` | Case progress, assigned hospital, UIDAI audit status & Discharge Bill PDF |
-| **💖 Donor** | `donor@vishwasa.org` | `password123` | Donated fund tracker, 80G tax savings calculator & PDF tax receipts |
-| **👤 Volunteer** | `volunteer.belagavi@vishwasa.org` | `password123` | Door-to-door verification audits & field report generation |
-| **👨‍⚕️ Doctor** | `doctor.kles@vishwasa.org` | `password123` | KMC Certificate verification & clinical treatment report generation |
-| **🏥 Hospital Admin** | `hospital.admin@vishwasa.org` | `password123` | Bed allocation, ICU tracking & itemized discharge bill generation |
-| **🛡️ Foundation Admin** | `admin@vishwasa.org` | `password123` | **Pending User Approvals Queue**, CSR MoU management & direct fund transfers |
-| **👩‍⚕️ ASHA Worker** | `asha.belagavi@vishwasa.org` | `password123` | Rural patient referrals, volunteer zone approvals & health camp drives |
-| **🏢 CSR Sponsor** | `csr.sponsor@vishwasa.org` | `password123` | Corporate grant allocation, volunteer stipend transactions & impact metrics |
+| Role Portal | Portal Capabilities | Access Level |
+| :--- | :--- | :--- |
+| **🧑‍🦽 Patient** | Case progress, assigned hospital, UIDAI audit status & Discharge Bill PDF | Authenticated Patient |
+| **💖 Donor** | Donated fund tracker, direct hospital disbursement ledger & payment receipts | Authenticated Donor |
+| **👤 Volunteer** | Assigned physical verification audits, house inspection & field report PDF | Field Volunteer |
+| **👨‍⚕️ Doctor** | KMC License verification, clinical evaluation & surgical report submission | Medical Specialist |
+| **🏥 Hospital Admin** | Allocated patient admissions, bed management & itemized discharge billing | Hospital Authority |
+| **🛡️ Foundation Admin** | **Approved Patients Table**, Hospital Allocation, Volunteer Assignment & Audit Queue | Executive Board |
+| **👩‍⚕️ ASHA Worker** | Rural patient referrals, volunteer zone approvals & community health drives | Healthcare Field Lead |
+| **🏢 CSR Sponsor** | Corporate grant commitment, 80G tax exemption certificates & CSR MoU tracking | Corporate CSR Board |
 
 ---
 
-## 🐘 PostgreSQL Database & Schema Architecture
+## 🐘 PostgreSQL Database Architecture
 
-The platform uses **PostgreSQL 18** with automatic seeding on startup via `DatabaseInitializer.java`.
+The platform uses **PostgreSQL 18** with automated schema initialization on startup.
 
-### Key Tables & Entities:
-- `users`: Core authentication & 8-role security definitions.
-- `patients`: Patient profiles, UIDAI Aadhaar verification, and assigned cases.
-- `volunteers`: Field volunteer profiles, assigned districts, and reliability scores.
-- `doctors`: Specialist doctors, KMC registration numbers, and medical qualifications.
-- `hospitals`: Accredited partner hospitals, bed capacity, and billing departments.
-- `medical_cases`: Medical aid cases, surgery costs, and recovery status.
-- `donation_campaigns`: Active fundraising campaigns and target goals.
-- `donations`: Transaction ledger storing donor PAN numbers, amounts, and UTR references.
+### Key Database Tables:
+- `users` — Authentication credentials, role definitions, and account approval statuses.
+- `patients` — Patient identity data, UIDAI document references, and assigned case numbers.
+- `volunteers` — Field volunteer profiles, assigned zones, and verification audit logs.
+- `doctors` — Specialist doctor profiles, KMC registration numbers, and hospital affiliations.
+- `hospitals` — Accredited hospital records, bed capacity, and billing accounts.
+- `medical_cases` — Active medical campaigns, clinical diagnosis, and surgical costs.
+- `donations` — Transaction ledger storing donor info, payment references, and direct disbursement status.
 
 ---
 
-## 📡 REST API Documentation Endpoints
+## 📡 REST API Architecture
 
 ### 🔑 Authentication Endpoints
-- `POST /api/auth/login` — Authenticate user and issue JWT token.
-- `POST /api/auth/register` — Register user account with password and document audit payload.
-- `GET /api/auth/me` — Fetch current authenticated user.
+- `POST /api/auth/login` — Authenticate user credentials and issue JWT token.
+- `POST /api/auth/register` — Register user account with identity document payload.
+- `GET /api/auth/me` — Fetch authenticated user profile.
 
-### 🧑‍🦽 Patient & Case Endpoints
-- `POST /api/patients/register` — Register new patient and queue for Foundation Admin approval.
-- `GET /api/patients/{id}` — Get patient details.
-- `POST /api/patients/{id}/cases` — Create new medical case for patient.
+### 🧑‍🦽 Patient & Clinical Endpoints
+- `POST /api/patients/register` — Register new patient and queue for Foundation Board audit.
+- `GET /api/patients/{id}` — Fetch patient clinical details and treatment status.
+- `POST /api/patients/{id}/cases` — Create medical aid case for allocated hospital.
 
 ### 💳 Donation & Ledger Endpoints
-- `POST /api/donations` — Create completed donation record in PostgreSQL.
-- `GET /api/donations/campaign/{campaignId}` — Get all donations for a specific campaign.
-- `GET /api/donations/donor/{email}` — Get donation history by donor email.
+- `POST /api/donations` — Record verified donation in PostgreSQL database.
+- `GET /api/donations/campaign/{campaignId}` — Fetch donations for a medical campaign.
+- `GET /api/donations/donor/{email}` — Fetch donation history for a donor.
 
 ---
 
-## ⚙️ Configuration & Environment Setup
+## ⚙️ Configuration & Local Deployment
 
-### Local Setup
-Ensure PostgreSQL 18 is running locally on port `5432`:
+### Database Configuration
+Configure database connection settings in `src/main/resources/application.properties`:
 ```properties
-# src/main/resources/application.properties
+# PostgreSQL Database Connection Settings
 spring.datasource.url=${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/vishwasa}
 spring.datasource.username=${SPRING_DATASOURCE_USERNAME:postgres}
-spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:Girish@9701}
-jwt.secret=${JWT_SECRET_KEY:${JWT_SECRET:VishwasaHealthcareFoundationSuperSecretKey2026NorthKarnatakaBelagaviHQ98450SecureJWTTokenSigningKey32BytesLong}}
+spring.datasource.password=${SPRING_DATASOURCE_PASSWORD:your_database_password}
+
+# JWT Token Security Configuration
+jwt.secret=${JWT_SECRET_KEY:VishwasaHealthcareFoundationSuperSecretKey2026NorthKarnatakaBelagaviHQ98450SecureJWTTokenSigningKey32BytesLong}
 ```
 
 ### Launch Application
@@ -158,14 +166,14 @@ $env:JAVA_HOME="C:\Program Files\JetBrains\IntelliJ IDEA 2026.2.1\jbr"
 mvn spring-boot:run
 ```
 
-Access Web Portal:
+Access Web Portal:  
 🔗 **`http://localhost:8080`**
 
 ---
 
-## 📦 Production Build & Packaging
+## 📦 Production Packaging
 
-Build executable JAR package for cloud deployment:
+Build executable Spring Boot JAR package:
 ```powershell
 mvn clean package -DskipTests
 ```
