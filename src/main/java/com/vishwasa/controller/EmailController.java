@@ -1,7 +1,11 @@
 package com.vishwasa.controller;
 
+import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -13,6 +17,12 @@ import java.util.Map;
 @RequestMapping("/api/email")
 @CrossOrigin(origins = "*")
 public class EmailController {
+
+    @Autowired(required = false)
+    private JavaMailSender mailSender;
+
+    @Value("${spring.mail.username:girishhadimani145@gmail.com}")
+    private String senderEmail;
 
     @Value("${RESEND_API_KEY:${resend.api.key:YOUR_RESEND_API_KEY}}")
     private String resendApiKey;
@@ -27,6 +37,25 @@ public class EmailController {
             recipientEmail = "donor@vishwasa.org";
         }
 
+        // 1. Try Free Gmail / SMTP JavaMailSender first (Sends to ANY email address for free!)
+        if (mailSender != null) {
+            try {
+                MimeMessage mimeMessage = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+                helper.setFrom(senderEmail, "Vishwasa Healthcare Foundation");
+                helper.setTo(recipientEmail);
+                helper.setSubject(subject != null ? subject : "Vishwasa Healthcare Notification");
+                helper.setText(htmlContent != null ? htmlContent : "<p>Vishwasa Notification</p>", true);
+
+                mailSender.send(mimeMessage);
+                System.out.println("✅ Gmail SMTP Email Sent Successfully to: " + recipientEmail);
+                return ResponseEntity.ok(Map.of("status", "SUCCESS", "provider", "GMAIL_SMTP", "recipient", recipientEmail));
+            } catch (Exception e) {
+                System.err.println("Gmail SMTP Dispatch Note: " + e.getMessage());
+            }
+        }
+
+        // 2. Fallback to Resend API
         try {
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
@@ -43,10 +72,10 @@ public class EmailController {
             ResponseEntity<String> response = restTemplate.postForEntity("https://api.resend.com/emails", entity, String.class);
 
             System.out.println("✅ Resend API Dispatched: " + response.getBody());
-            return ResponseEntity.ok(Map.of("status", "SUCCESS", "resendResponse", response.getBody()));
+            return ResponseEntity.ok(Map.of("status", "SUCCESS", "provider", "RESEND_API", "resendResponse", response.getBody()));
         } catch (Exception e) {
-            System.err.println("Resend API server dispatch attempt: " + e.getMessage());
-            return ResponseEntity.ok(Map.of("status", "DISPATCHED_LOCAL", "message", e.getMessage()));
+            System.err.println("Resend API fallback note: " + e.getMessage());
+            return ResponseEntity.ok(Map.of("status", "DISPATCHED_LOCAL", "recipient", recipientEmail, "message", e.getMessage()));
         }
     }
 }
