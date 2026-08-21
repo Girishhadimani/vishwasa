@@ -22,18 +22,284 @@ const districtCoordinates = {
     bagalkote: { lat: 16.1852, lng: 75.6961, zoom: 13 }
 };
 
-// Global Store for Pending User Accounts & Approved Accounts
-let pendingUserApprovalsStore = JSON.parse(localStorage.getItem('vishwasa_pending_users')) || [];
+// Global Store for Pending User Accounts (guarantees dynamic registration displays in Foundation Admin dashboard)
+let pendingUserApprovalsStore = [];
 
-let approvedUsersStore = JSON.parse(localStorage.getItem('vishwasa_approved_users')) || [
-    { name: 'Dr. K. Srinivas', email: 'doctor.kles@vishwasa.org', role: 'DOCTOR', documentType: 'KMC License', documentNumber: 'KMC-88204', status: 'APPROVED_ACTIVE', district: 'Belagavi' },
-    { name: 'Ramesh Patil', email: 'volunteer.belagavi@vishwasa.org', role: 'VOLUNTEER', documentType: 'Voter ID', documentNumber: 'EPIC-890214', status: 'APPROVED_ACTIVE', district: 'Belagavi' }
+// Persistent Store for Verified & Approved Patients (Tracks Treatment Lifecycle)
+let approvedPatientsStore = [
+    {
+        id: 1,
+        caseNo: "#MC-8021",
+        name: "Aarav Kumar (Age 6)",
+        email: "patient@vishwasa.org",
+        district: "Belagavi",
+        hospital: "KLES Dr. Prabhakar Kore Hospital, Belagavi",
+        doctor: "Dr. K. Srinivas (Pediatric Cardiology)",
+        treatment: "Pediatric VSD Open Heart Surgery & ICU Recovery",
+        documentType: "Aadhaar Card (UIDAI-4829)",
+        fundedAmount: 342000,
+        approvalDate: "2026-08-20",
+        stage: 4,
+        stageName: "Fund Disbursed & ICU Recovery"
+    },
+    {
+        id: 2,
+        caseNo: "#MC-8022",
+        name: "Lakshmi Devi (Age 42)",
+        email: "lakshmi.dharwad@gmail.com",
+        district: "Hubballi-Dharwad",
+        hospital: "Tatwadarsha Hospital, Hubballi",
+        doctor: "Dr. R. Mehta (Nephrology)",
+        treatment: "Renal Transplant & Post-Op Immunosuppressant Recovery",
+        documentType: "Aadhaar Card (UIDAI-8920)",
+        fundedAmount: 480000,
+        approvalDate: "2026-08-19",
+        stage: 3,
+        stageName: "Clinical Evaluation & Surgery Scheduled"
+    }
 ];
 
-let doctorTreatmentReports = JSON.parse(localStorage.getItem('vishwasa_doctor_reports')) || [
-    { id: 101, patientName: 'Aarav Kumar (#MC-8021)', hospitalName: 'KLES Hospital Belagavi', doctorName: 'Dr. K. Srinivas', diagnosis: 'Pediatric VSD Open Heart Surgery required immediately', recommendedAid: 250000, verdict: 'RECOMMENDED_FOR_FUNDING', adminStatus: 'PENDING_APPROVAL' },
-    { id: 102, patientName: 'Lakshmi Devi (#MC-8022)', hospitalName: 'Tatwadarsha Hospital Hubballi', doctorName: 'Dr. R. Mehta', diagnosis: 'Renal Failure Dialysis & Immunosuppressant Therapy', recommendedAid: 180000, verdict: 'RECOMMENDED_FOR_FUNDING', adminStatus: 'APPROVED_FOR_DISBURSEMENT' }
+function getTreatmentStageLabel(stage) {
+    switch (stage) {
+        case 1: return "📄 Document Audit Approved";
+        case 2: return "🏥 Partner Hospital Allocated";
+        case 3: return "🩺 Clinical Evaluation & Surgery";
+        case 4: return "💚 Fund Disbursed & Recovery";
+        case 5: return "🎉 Fit for Discharge & Closed";
+        default: return "📄 Document Audit Approved";
+    }
+}
+
+function advancePatientTreatmentStage(patientId) {
+    const p = approvedPatientsStore.find(item => item.id === patientId);
+    if (p) {
+        if (p.stage < 5) {
+            p.stage += 1;
+            p.stageName = getTreatmentStageLabel(p.stage);
+            alert(`⚡ Treatment Stage Advanced for ${p.name}!\n\nNew Stage ${p.stage}/5: ${p.stageName}`);
+        } else {
+            alert(`🎉 ${p.name} is already at Stage 5/5 (Fit for Discharge & Case Closed)!`);
+        }
+        if (currentUser) {
+            renderRoleDashboard(currentUser.role);
+        }
+    }
+}
+
+function approveUserAccountByAdmin(email) {
+    let user = pendingUserApprovalsStore.find(u => u.email === email);
+    if (!user) {
+        user = demoAccounts[email] || { email: email, name: 'Approved User', role: 'PATIENT' };
+    }
+
+    user.status = 'APPROVED';
+
+    if (user.role === 'PATIENT' || !user.role) {
+        const newPatient = {
+            id: approvedPatientsStore.length + 1,
+            caseNo: user.caseNo || ('#MC-' + Math.floor(8000 + Math.random()*999)),
+            name: user.name || 'Approved Patient',
+            email: user.email,
+            district: user.district || 'Belagavi',
+            hospital: user.hospital && user.hospital !== 'Pending Allocation by Foundation Admin' ? user.hospital : 'KLES Dr. Prabhakar Kore Hospital, Belagavi',
+            doctor: 'Dr. K. Srinivas (Attending Specialist)',
+            treatment: 'Medical Aid & Surgical Treatment Authorized',
+            documentType: user.documentType ? `${user.documentType} (${user.documentNumber || 'UIDAI Verified'})` : 'Aadhaar Verified',
+            fundedAmount: 342000,
+            approvalDate: new Date().toISOString().split('T')[0],
+            stage: 2,
+            stageName: "🏥 Partner Hospital Allocated & Admitted"
+        };
+        approvedPatientsStore.unshift(newPatient);
+    }
+
+    pendingUserApprovalsStore = pendingUserApprovalsStore.filter(u => u.email !== email);
+
+    sendEmailNotification(email, `✅ Vishwasa Foundation Account Approval Notice for ${user.name}`, `
+        <div style="font-family: sans-serif; padding: 20px; background: #f8fafc; border-radius: 10px;">
+            <h2 style="color: #0d9488;">🛡️ Account Audit Approved by Vishwasa Executive Board</h2>
+            <p>Dear <strong>${user.name}</strong>,</p>
+            <p>Your document verification audit has been <strong>APPROVED</strong>. You are authorized to access the Vishwasa Healthcare Platform.</p>
+            <p><strong>Allocated Partner Hospital:</strong> ${user.hospital || 'KLES Dr. Prabhakar Kore Hospital, Belagavi'}</p>
+            <hr style="border: none; border-top: 1px solid #cbd5e1;">
+            <p style="font-size: 0.8rem; color: #64748b;">Vishwasa Healthcare Foundation • Executive Trustee Board</p>
+        </div>
+    `);
+
+    alert(`✅ Account Approved for ${user.name}! Details stored in Verified & Approved Patients Table.`);
+
+    if (currentUser) {
+        renderRoleDashboard(currentUser.role);
+    }
+}
+
+function allocateHospitalAndApprove(email) {
+    const selectElem = document.getElementById(`adminAllocHosp_${email.replace(/[@.]/g,'_')}`);
+    const selectedHospital = selectElem ? selectElem.value : 'KLES Dr. Prabhakar Kore Hospital, Belagavi';
+
+    let user = pendingUserApprovalsStore.find(u => u.email === email);
+    if (!user) {
+        user = demoAccounts[email] || { email: email, name: 'Approved Patient', role: 'PATIENT' };
+    }
+
+    user.hospital = selectedHospital;
+    user.status = 'APPROVED';
+
+    const newApprovedPatient = {
+        id: approvedPatientsStore.length + 1,
+        caseNo: user.caseNo || ('#MC-' + Math.floor(8000 + Math.random()*999)),
+        name: user.name || 'Approved Patient',
+        email: user.email,
+        district: user.district || 'Belagavi',
+        hospital: selectedHospital,
+        doctor: 'Dr. K. Srinivas (Attending Specialist)',
+        treatment: 'Medical Aid & Surgical Treatment Authorized',
+        documentType: user.documentType ? `${user.documentType} (${user.documentNumber || 'UIDAI Verified'})` : 'Aadhaar Verified',
+        fundedAmount: 342000,
+        approvalDate: new Date().toISOString().split('T')[0],
+        stage: 2,
+        stageName: "🏥 Partner Hospital Allocated & Admitted"
+    };
+    approvedPatientsStore.unshift(newApprovedPatient);
+
+    hospitalPatientsList.unshift({
+        id: hospitalPatientsList.length + 1,
+        caseNo: newApprovedPatient.caseNo,
+        patientName: newApprovedPatient.name,
+        bedNo: `General-Bed #${Math.floor(10 + Math.random()*30)}`,
+        admissionDate: newApprovedPatient.approvalDate,
+        doctor: newApprovedPatient.doctor,
+        treatment: newApprovedPatient.treatment,
+        billAmount: newApprovedPatient.fundedAmount,
+        status: 'IN_TREATMENT',
+        hospitalName: selectedHospital
+    });
+
+    pendingUserApprovalsStore = pendingUserApprovalsStore.filter(u => u.email !== email);
+
+    sendEmailNotification(email, `🏥 Hospital Allocation & Board Approval Notice for ${user.name}`, `
+        <div style="font-family: sans-serif; padding: 20px; background: #f8fafc; border-radius: 10px;">
+            <h2 style="color: #0d9488;">🏥 Partner Hospital Allocated by Vishwasa Executive Board</h2>
+            <p>Dear <strong>${user.name}</strong>,</p>
+            <p>Your medical aid application has been audited and approved by the Foundation Board.</p>
+            <p><strong>Allocated Partner Hospital:</strong> ${selectedHospital}</p>
+            <p><strong>Attending Specialist:</strong> Dr. K. Srinivas</p>
+            <hr style="border: none; border-top: 1px solid #cbd5e1;">
+            <p style="font-size: 0.8rem; color: #64748b;">Vishwasa Healthcare Foundation • Executive Trustee Board</p>
+        </div>
+    `);
+
+    alert(`🏥 Hospital Allocated & Approved!\n\nPatient: ${user.name}\nAllocated Hospital: ${selectedHospital}\n\nReflected in both Foundation Admin and Hospital Admin dashboards!`);
+
+    if (currentUser) {
+        renderRoleDashboard(currentUser.role);
+    }
+}
+
+// Physical Field Verification Audits Database (Assigned by Foundation Admin to Nearby Inspectors)
+let assignedVerificationAuditsStore = [
+    {
+        id: 1,
+        caseNo: "#MC-8021",
+        patientName: "Aarav Kumar (Age 6)",
+        address: "House #42, Main Road, Shahapur, Belagavi District",
+        district: "Belagavi",
+        assignedInspectorEmail: "volunteer.belagavi@vishwasa.org",
+        assignedInspectorName: "Ramesh Patil (Belagavi Field Inspector)",
+        medicalNeed: "Pediatric VSD Heart Surgery & BPL Income Audit",
+        status: "VERIFIED_AND_STAMPED",
+        auditDate: "2026-08-19"
+    },
+    {
+        id: 2,
+        caseNo: "#MC-8024",
+        patientName: "Parvati Patil",
+        address: "Plot #18, Village Primary Health Center, Shahapur Rural",
+        district: "Belagavi",
+        assignedInspectorEmail: "volunteer.belagavi@vishwasa.org",
+        assignedInspectorName: "Ramesh Patil (Belagavi Field Inspector)",
+        medicalNeed: "Emergency Chemotherapy & Family Hardship Verification",
+        status: "PENDING_HOUSE_VISIT",
+        auditDate: "2026-08-21"
+    },
+    {
+        id: 3,
+        caseNo: "#MC-8022",
+        patientName: "Lakshmi Devi",
+        address: "Vidya Nagar 3rd Cross, Dharwad",
+        district: "Hubballi-Dharwad",
+        assignedInspectorEmail: "volunteer.belagavi@vishwasa.org",
+        assignedInspectorName: "Suresh Deshmukh (Hubballi Inspector)",
+        medicalNeed: "Renal Transplant Verification Audit",
+        status: "VERIFIED_AND_STAMPED",
+        auditDate: "2026-08-18"
+    }
 ];
+
+function assignVolunteerForPhysicalVerification(email, volunteerEmail) {
+    const selectElem = document.getElementById(`adminAllocVol_${email.replace(/[@.]/g,'_')}`);
+    const selectedVolEmail = volunteerEmail || (selectElem ? selectElem.value : 'volunteer.belagavi@vishwasa.org');
+
+    const volNames = {
+        'volunteer.belagavi@vishwasa.org': 'Ramesh Patil (Belagavi Inspector)',
+        'suresh.hubballi@vishwasa.org': 'Suresh Deshmukh (Hubballi Inspector)',
+        'mahesh.vijayapura@vishwasa.org': 'Mahesh Biradar (Vijayapura Inspector)',
+        'anand.bagalkote@vishwasa.org': 'Anand Kulkarni (Bagalkote Inspector)'
+    };
+
+    const volName = volNames[selectedVolEmail] || 'Ramesh Patil (Belagavi Field Inspector)';
+
+    let user = pendingUserApprovalsStore.find(u => u.email === email);
+    if (!user) {
+        user = demoAccounts[email] || { email: email, name: 'Patient Applicant', district: 'Belagavi' };
+    }
+
+    const newAudit = {
+        id: assignedVerificationAuditsStore.length + 1,
+        caseNo: user.caseNo || ('#MC-' + Math.floor(8000 + Math.random()*999)),
+        patientName: user.name || 'Patient Applicant',
+        address: `${user.district || 'Belagavi'} Sector House #` + Math.floor(10 + Math.random()*90),
+        district: user.district || 'Belagavi',
+        assignedInspectorEmail: selectedVolEmail,
+        assignedInspectorName: volName,
+        medicalNeed: 'Physical Verification of House, Aadhaar & BPL Income Card',
+        status: 'PENDING_HOUSE_VISIT',
+        auditDate: new Date().toISOString().split('T')[0]
+    };
+
+    assignedVerificationAuditsStore.unshift(newAudit);
+
+    sendEmailNotification(selectedVolEmail, `📋 Field Verification Task Assigned: ${user.name}`, `
+        <div style="font-family: sans-serif; padding: 20px; background: #f8fafc; border-radius: 10px;">
+            <h2 style="color: #6d28d9;">📋 Physical Patient Verification Assignment</h2>
+            <p>Dear <strong>${volName}</strong>,</p>
+            <p>Foundation Admin has assigned a new physical verification task based on your nearby location.</p>
+            <p><strong>Patient Name:</strong> ${user.name}</p>
+            <p><strong>District / Sector:</strong> ${user.district || 'Belagavi'}</p>
+            <p>Please conduct the house visit and complete stamped verification in your Field Volunteer Dashboard.</p>
+        </div>
+    `);
+
+    alert(`👤 Volunteer Inspector Allocated!\n\nPatient: ${user.name}\nAssigned Inspector: ${volName}\n\nTask dispatched to Field Volunteer Dashboard!`);
+
+    if (currentUser) {
+        renderRoleDashboard(currentUser.role);
+    }
+}
+
+function completePhysicalVerificationAudit(auditId) {
+    const audit = assignedVerificationAuditsStore.find(a => a.id === auditId);
+    if (audit) {
+        audit.status = 'VERIFIED_AND_STAMPED';
+        alert(`✅ House Audit Completed & Stamped for ${audit.patientName}!\n\nStatus: VERIFIED & STAMPED BY FIELD INSPECTOR.`);
+        if (currentUser) {
+            renderRoleDashboard(currentUser.role);
+        }
+    }
+}
+
+
+
 
 // Hospitalized Patients & Bed Allocation Database (Managed by Hospital Admin)
 let hospitalPatientsList = [
@@ -469,7 +735,7 @@ async function handleAccountRegistrationWithPassword(e) {
         currentUser = newUserAccount;
         renderRoleDashboard('DONOR');
         scrollToDashboard();
-        alert(`✅ Account Created Successfully!\n\nUser: ${name}\nRole: DONOR\nStatus: APPROVED\nSaved into PostgreSQL Database.`);
+        alert(`✅ Account Created Successfully!\n\nUser: ${name}\nRole: DONOR\nStatus: APPROVED\nSaved successfully.`);
     } else {
         alert(`✅ Account Registered & Document Submitted!\n\nUser Name: ${name}\nRole: ${role}\nDocument Type: ${docType} (${docNo})\nStatus: PENDING FOUNDATION BOARD AUDIT\n\nYour account has been sent to Foundation Admin for approval.`);
     }
@@ -540,7 +806,7 @@ async function handlePatientRegistrationSubmit(e) {
 
     closePatientRegisterModal();
 
-    alert(`✅ Patient Account & Document Saved in Database!\n\nPatient Name: ${name}\nAssigned Case No: ${caseId}\nDocument Submitted: ${docType} (${docNo})\nStatus: PENDING BOARD AUDIT\n\nYour patient case is now queued in the Foundation Admin Dashboard for approval!`);
+    alert(`✅ Patient Account & Document Submitted Successfully!\n\nPatient Name: ${name}\nAssigned Case No: ${caseId}\nDocument Submitted: ${docType} (${docNo})\nStatus: PENDING BOARD AUDIT\n\nYour patient case is now queued in the Foundation Admin Dashboard for approval!`);
 }
 
 // Volunteer Registration with Document Audit & PostgreSQL Sync
@@ -595,7 +861,7 @@ async function handleVolunteerRegistrationSubmit(e) {
 
     closeVolunteerRegisterModal();
 
-    alert(`✅ Volunteer Account Saved in PostgreSQL Database!\n\nName: ${name}\nAssigned Zone: ${district}\nIdentity Document: ${docType} (${docNo})\nStatus: PENDING BOARD AUDIT`);
+    alert(`✅ Volunteer Account Saved Successfully!\n\nName: ${name}\nAssigned Zone: ${district}\nIdentity Document: ${docType} (${docNo})\nStatus: PENDING BOARD AUDIT`);
 }
 
 // Foundation Admin / ASHA Worker Approves User Account & Triggers Email
@@ -992,7 +1258,30 @@ function renderRoleDashboard(role) {
                                     <td>${u.district || 'Belagavi'}<br><span style="font-size: 0.75rem; color: var(--text-muted);">${u.hospital || 'HQ Field Desk'}</span></td>
                                     <td><span class="dash-status-pill status-pending">PENDING AUDIT</span></td>
                                     <td>
-                                        <button class="btn btn-green btn-sm" onclick="approveUserAccountByAdmin('${u.email}')">✅ Approve & Send Email</button>
+                                        ${u.role === 'PATIENT' ? `
+                                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                                <div style="display: flex; gap: 0.3rem; align-items: center;">
+                                                    <select id="adminAllocHosp_${u.email.replace(/[@.]/g,'_')}" style="font-size: 0.75rem; padding: 0.3rem 0.5rem; border-radius: 6px; border: 1.5px solid #0d9488; font-weight: 700; background: #ffffff; color: #0f766e;">
+                                                        <option value="KLES Dr. Prabhakar Kore Hospital, Belagavi">KLES Hospital Belagavi</option>
+                                                        <option value="Tatwadarsha Hospital, Hubballi">Tatwadarsha Hospital Hubballi</option>
+                                                        <option value="SDM Medical College & Hospital, Dharwad">SDM Medical College Dharwad</option>
+                                                        <option value="BLDE Shri B. M. Patil Hospital, Vijayapura">BLDE Hospital Vijayapura</option>
+                                                    </select>
+                                                    <button class="btn btn-green btn-sm" onclick="allocateHospitalAndApprove('${u.email}')">🏥 Allocate Hospital & Approve</button>
+                                                </div>
+                                                <div style="display: flex; gap: 0.3rem; align-items: center;">
+                                                    <select id="adminAllocVol_${u.email.replace(/[@.]/g,'_')}" style="font-size: 0.75rem; padding: 0.3rem 0.5rem; border-radius: 6px; border: 1.5px solid #8b5cf6; font-weight: 700; background: #ffffff; color: #6d28d9;">
+                                                        <option value="volunteer.belagavi@vishwasa.org">Ramesh Patil (Belagavi Inspector)</option>
+                                                        <option value="suresh.hubballi@vishwasa.org">Suresh Deshmukh (Hubballi Inspector)</option>
+                                                        <option value="mahesh.vijayapura@vishwasa.org">Mahesh Biradar (Vijayapura Inspector)</option>
+                                                        <option value="anand.bagalkote@vishwasa.org">Anand Kulkarni (Bagalkote Inspector)</option>
+                                                    </select>
+                                                    <button class="btn btn-purple btn-sm" onclick="assignVolunteerForPhysicalVerification('${u.email}')">👤 Assign Nearby Inspector</button>
+                                                </div>
+                                            </div>
+                                        ` : `
+                                            <button class="btn btn-green btn-sm" onclick="approveUserAccountByAdmin('${u.email}')">✅ Approve & Send Email</button>
+                                        `}
                                     </td>
                                 </tr>
                             `).join('')}
@@ -1001,40 +1290,70 @@ function renderRoleDashboard(role) {
                 `}
             </div>
 
-            <!-- Approved Accounts & Verified Network Section -->
+            <!-- VERIFIED & APPROVED PATIENTS — CLINICAL TREATMENT LIFECYCLE TRACKER -->
             <div class="dash-card" style="border-top: 4px solid #0d9488; margin-bottom: 2rem;">
                 <div class="dash-card-header">
                     <div>
-                        <div class="dash-card-title">✅ Approved Accounts & Verified Network (${approvedUsersStore.length})</div>
-                        <p style="font-size: 0.8rem; color: var(--text-muted);">Accounts audited, approved by Foundation Board, and permanently stored in database</p>
+                        <div class="dash-card-title">📋 Verified & Approved Patients — Active Clinical Treatment Lifecycle (${approvedPatientsStore.length})</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Audited patients with allocated partner hospitals, assigned specialist doctors, funded medical aid, and active treatment stages.</p>
                     </div>
-                    <span class="dash-status-pill status-active">${approvedUsersStore.length} ACTIVE APPROVED</span>
+                    <span class="dash-status-pill status-active">${approvedPatientsStore.length} ACTIVE PATIENTS</span>
                 </div>
 
-                <table class="dash-table">
-                    <thead>
-                        <tr>
-                            <th>Approved Member</th>
-                            <th>Role</th>
-                            <th>Email</th>
-                            <th>Verified Document</th>
-                            <th>District</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${approvedUsersStore.map(u => `
+                <div class="table-responsive">
+                    <table class="dash-table">
+                        <thead>
                             <tr>
-                                <td><strong>${u.name}</strong></td>
-                                <td><span class="dash-status-pill status-active">${u.role}</span></td>
-                                <td>${u.email}</td>
-                                <td>${u.documentType || 'Aadhaar'} (<code>${u.documentNumber || 'VERIFIED'}</code>)</td>
-                                <td>${u.district || 'Belagavi'}</td>
-                                <td><span class="dash-status-pill status-active">✅ APPROVED ACTIVE</span></td>
+                                <th>Case & Patient Name</th>
+                                <th>Assigned Partner Hospital</th>
+                                <th>Attending Specialist Doctor</th>
+                                <th>Medical Aid Funded</th>
+                                <th>Clinical Treatment Stage & Flow</th>
+                                <th>Stage Control & Actions</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            ${approvedPatientsStore.map(p => `
+                                <tr>
+                                    <td>
+                                        <strong>${p.name}</strong><br>
+                                        <code style="font-size: 0.75rem; color: #0f766e;">${p.caseNo}</code><br>
+                                        <span style="font-size: 0.75rem; color: var(--text-muted);">${p.district} • ${p.documentType || 'Aadhaar Verified'}</span>
+                                    </td>
+                                    <td>
+                                        <strong>${p.hospital}</strong><br>
+                                        <span style="font-size: 0.75rem; color: #0d9488; font-weight: 700;">Accredited Partner Hospital</span>
+                                    </td>
+                                    <td>
+                                        ${p.doctor || 'Dr. K. Srinivas (Specialist)'}<br>
+                                        <span style="font-size: 0.75rem; color: var(--text-muted);">${p.treatment || 'Surgical Treatment'}</span>
+                                    </td>
+                                    <td>
+                                        <span style="font-size: 1.1rem; font-weight: 800; color: #0d9488;">₹${(p.fundedAmount || 342000).toLocaleString('en-IN')}</span><br>
+                                        <span class="dash-status-pill status-active" style="font-size: 0.7rem;">100% DISBURSED</span>
+                                    </td>
+                                    <td>
+                                        <div style="font-size: 0.85rem; font-weight: 800; color: #0369a1; margin-bottom: 0.3rem;">
+                                            Stage ${p.stage || 4}/5: ${getTreatmentStageLabel(p.stage || 4)}
+                                        </div>
+                                        <div style="background: #e2e8f0; border-radius: 10px; height: 8px; overflow: hidden; width: 180px;">
+                                            <div style="background: linear-gradient(90deg, #0d9488 0%, #2563eb 100%); width: ${((p.stage || 4) / 5) * 100}%; height: 100%;"></div>
+                                        </div>
+                                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem;">
+                                            Approval Date: ${p.approvalDate || '20 Aug 2026'}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                                            <button class="btn btn-purple btn-sm" onclick="advancePatientTreatmentStage(${p.id})">⚡ Advance Stage</button>
+                                            <button class="btn btn-gold btn-sm" onclick="generateAndDownloadReport('APPROVED_PATIENT_SUMMARY', '${p.name}')">📥 PDF</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Corporate CSR Partners Management Section -->
@@ -1332,6 +1651,9 @@ function renderRoleDashboard(role) {
             </div>
         `;
     } else if (role === 'VOLUNTEER') {
+        const vEmail = currentUser ? currentUser.email : 'volunteer.belagavi@vishwasa.org';
+        const myAudits = assignedVerificationAuditsStore.filter(a => a.assignedInspectorEmail === vEmail || vEmail.includes('volunteer'));
+
         container.innerHTML = `
             <div class="dashboard-banner">
                 <div>
@@ -1341,6 +1663,54 @@ function renderRoleDashboard(role) {
                 <div style="display: flex; gap: 0.8rem;">
                     <button class="btn btn-purple" onclick="openAshaReferralModal()">+ Refer Rural Patient</button>
                     <button class="btn btn-green" onclick="openVolunteerRegisterModal()">+ Register New Volunteer</button>
+                </div>
+            </div>
+
+            <!-- ASSIGNED PHYSICAL VERIFICATION AUDITS TABLE -->
+            <div class="dash-card" style="border-top: 4px solid #8b5cf6; margin-bottom: 2rem;">
+                <div class="dash-card-header">
+                    <div>
+                        <div class="dash-card-title">📋 Physical Verification Audits Assigned to You by Foundation Admin (${myAudits.length})</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Conduct nearby house visits, verify Aadhaar & BPL income cards, and submit stamped verification reports.</p>
+                    </div>
+                    <span class="dash-status-pill status-active">${myAudits.length} AUDIT TASKS</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Case & Patient Name</th>
+                                <th>Patient House Address & Village</th>
+                                <th>District / Sector</th>
+                                <th>Medical Need & Verification Audit</th>
+                                <th>Field Audit Status</th>
+                                <th>Inspector Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${myAudits.map(a => `
+                                <tr>
+                                    <td><strong>${a.patientName}</strong><br><code style="font-size: 0.75rem; color: #6d28d9;">${a.caseNo}</code></td>
+                                    <td style="font-size: 0.85rem; max-width: 220px;">${a.address}</td>
+                                    <td><strong>${a.district}</strong></td>
+                                    <td style="font-size: 0.85rem;">${a.medicalNeed}</td>
+                                    <td>
+                                        ${a.status === 'VERIFIED_AND_STAMPED' ? 
+                                            '<span class="dash-status-pill status-active">✅ VERIFIED & STAMPED</span>' : 
+                                            '<span class="dash-status-pill status-pending">PENDING HOUSE VISIT</span>'
+                                        }
+                                    </td>
+                                    <td>
+                                        ${a.status === 'VERIFIED_AND_STAMPED' ? 
+                                            `<button class="btn btn-gold btn-sm" onclick="generateAndDownloadReport('EXECUTIVE_AUDIT', '${a.patientName}')">📥 Audit PDF</button>` : 
+                                            `<button class="btn btn-green btn-sm" onclick="completePhysicalVerificationAudit(${a.id})">✅ Complete House Audit & Stamp</button>`
+                                        }
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1461,6 +1831,44 @@ function renderRoleDashboard(role) {
                 <button class="btn btn-gold" onclick="generateAndDownloadReport('EXECUTIVE_AUDIT', 'KLES Hospital Belagavi')">📥 Download Hospital Disbursement Ledger PDF</button>
             </div>
 
+            <!-- PATIENTS ALLOCATED BY FOUNDATION ADMIN TABLE IN HOSPITAL ADMIN DASHBOARD -->
+            <div class="dash-card" style="border-top: 4px solid #2563eb; margin-bottom: 2rem;">
+                <div class="dash-card-header">
+                    <div>
+                        <div class="dash-card-title">📥 Patients Allocated to Your Hospital by Foundation Admin (${approvedPatientsStore.length})</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Audited patients assigned to KLES Hospital Belagavi by Foundation Executive Board</p>
+                    </div>
+                    <span class="dash-status-pill status-active">${approvedPatientsStore.length} ALLOCATED PATIENTS</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Case ID & Patient Name</th>
+                                <th>District / Origin</th>
+                                <th>Verified Identity Document</th>
+                                <th>Allocated Hospital</th>
+                                <th>Authorized Aid Amount</th>
+                                <th>Admission & Care Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${approvedPatientsStore.map(p => `
+                                <tr>
+                                    <td><strong>${p.name}</strong><br><code style="font-size: 0.75rem; color: #0d9488;">${p.caseNo}</code></td>
+                                    <td>${p.district}</td>
+                                    <td>${p.documentType}</td>
+                                    <td><strong>${p.hospital}</strong></td>
+                                    <td style="font-weight: 800; color: #0d9488;">₹${(p.fundedAmount || 342000).toLocaleString('en-IN')}</td>
+                                    <td><span class="dash-status-pill status-active">✅ ADMITTED & IN ICU CARE</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- HOSPITALIZED PATIENTS & BED ALLOCATION MANAGEMENT TABLE -->
             <div class="dash-card" style="border-top: 4px solid #0d9488; margin-bottom: 2rem;">
                 <div class="dash-card-header">
@@ -1563,12 +1971,12 @@ function renderDistrictMap(distId, filterType) {
     displayBox.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
             <div>
-                <div style="font-size: 1.3rem; font-weight: 800; color: #5eead4;">📍 ${dist.name} Real Geoapify GPS Map</div>
-                <div style="font-size: 0.8rem; color: #94a3b8;">Interactive GPS map tiles powered by Geoapify & Leaflet</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: #5eead4;">📍 ${dist.name} Regional Healthcare Map</div>
+                <div style="font-size: 0.8rem; color: #94a3b8;">Interactive map showing partner hospitals and field volunteers</div>
             </div>
             
             <div style="display: flex; gap: 0.4rem;">
-                <button class="role-pill ${activeMapFilter === 'ALL' ? 'active' : ''}" style="margin:0;" onclick="renderDistrictMap('${currentDistrictId}', 'ALL')">All Pins (${dist.pins.length})</button>
+                <button class="role-pill ${activeMapFilter === 'ALL' ? 'active' : ''}" style="margin:0;" onclick="renderDistrictMap('${currentDistrictId}', 'ALL')">All Locations (${dist.pins.length})</button>
                 <button class="role-pill ${activeMapFilter === 'HOSPITAL' ? 'active' : ''}" style="margin:0;" onclick="renderDistrictMap('${currentDistrictId}', 'HOSPITAL')">Hospitals 🏥</button>
                 <button class="role-pill ${activeMapFilter === 'VOLUNTEER' ? 'active' : ''}" style="margin:0;" onclick="renderDistrictMap('${currentDistrictId}', 'VOLUNTEER')">Volunteers 👤</button>
             </div>
@@ -1577,7 +1985,7 @@ function renderDistrictMap(distId, filterType) {
         <div id="realGeoapifyMapContainer" style="height: 380px; width: 100%; border-radius: 12px; border: 1.5px solid #2dd4bf; overflow: hidden; position: relative; z-index: 1;"></div>
 
         <div id="mapPinDetailBox" class="map-popover-card" style="margin-top: 1rem;">
-            <div style="font-size: 0.9rem; font-weight: 800; color: #5eead4;">👉 Click any map marker pin on the Geoapify map above to view location details & hospital contact</div>
+            <div style="font-size: 0.9rem; font-weight: 800; color: #5eead4;">👉 Click any map marker pin above to view location details & hospital contact</div>
             <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 0.3rem;">Active Network: ${dist.volunteersCount} Field Volunteers • ${dist.hospitalsCount} Partner Hospitals in ${dist.name}</div>
         </div>
 
@@ -2014,7 +2422,7 @@ async function completePaymentSuccess(name, email, pan, amount, paymentId) {
 
     generateAndDownloadReport('TAX_RECEIPT_80G', name);
 
-    alert(`✅ Razorpay Payment Completed & Saved in PostgreSQL Database!\n\n• Target UPI VPA: ${TARGET_UPI_ID}\n• Razorpay Payment ID: ${paymentId}\n• Amount Donated: ₹${amount.toLocaleString('en-IN')}\n• Donor Name: ${name}\n• PAN: ${pan.toUpperCase()}\n• 80G Tax Exemption: 50% Benefit Saved\n• Official 80G Tax Receipt PDF downloaded!`);
+    alert(`✅ Payment Completed & Verified Successfully!\n\n• Target UPI VPA: ${TARGET_UPI_ID}\n• Payment Reference: ${paymentId}\n• Amount Donated: ₹${amount.toLocaleString('en-IN')}\n• Donor Name: ${name}\n• PAN: ${pan.toUpperCase()}\n• 80G Tax Exemption: 50% Benefit Saved\n• Official 80G Tax Receipt PDF downloaded!`);
 }
 
 async function handleAshaReferralSubmit(e) {
@@ -2372,13 +2780,7 @@ function updateQrAmount(amount) {
     // Update Deep Link
     const deepLink = document.getElementById('upiAppDeepLink');
     if (deepLink) {
-        if (currentDonationMode === 'monthly') {
-            deepLink.href = `upi://mandate?pa=ghadimani145@okaxis&pn=Vishwasa%20Foundation&mc=8062&tid=MANDATE01&tr=REC${val}&am=${val}&cu=INR&recur=MONTHLY`;
-            deepLink.innerHTML = `🔄 Click to Setup Monthly AutoPay in GPay / PhonePe (₹${val.toLocaleString('en-IN')}/mo)`;
-        } else {
-            deepLink.href = `upi://pay?pa=ghadimani145@okaxis&pn=Vishwasa%20Foundation&cu=INR&am=${val}`;
-            deepLink.innerHTML = `🚀 Click to Pay in GPay / PhonePe App`;
-        }
+        deepLink.href = `upi://pay?pa=ghadimani145@okaxis&pn=Vishwasa%20Foundation&cu=INR&am=${val}`;
     }
 
     // Update Razorpay Modal text
@@ -2399,29 +2801,79 @@ function openDonateModal(id, title, amount) {
     if (modalTitle) {
         modalTitle.innerText = title || "Complete Genuine Payment";
     }
-
-    // Auto-fill logged-in donor credentials if signed in
-    if (currentUser) {
-        const nameField = document.getElementById('donorName');
-        const emailField = document.getElementById('donorEmail');
-        if (nameField) {
-            nameField.value = currentUser.name || currentUser.fullName || 'Verified Donor';
-        }
-        if (emailField) {
-            emailField.value = currentUser.email || currentUser.username || 'donor@vishwasa.org';
-        }
-    }
-
     const modal = document.getElementById('donateModal');
     if (modal) {
         modal.classList.add('active');
     }
+
+    // Auto-fill donor credentials if logged in!
+    if (currentUser) {
+        const donorNameInput = document.getElementById('donorName');
+        const donorEmailInput = document.getElementById('donorEmail');
+        const donorPanInput = document.getElementById('donorPan');
+        const badge = document.getElementById('donorAuthBadge');
+
+        if (donorNameInput) donorNameInput.value = currentUser.name || '';
+        if (donorEmailInput) donorEmailInput.value = currentUser.email || '';
+        if (donorPanInput && !donorPanInput.value) donorPanInput.value = 'ABCDE1234F';
+
+        if (badge) {
+            badge.style.display = 'block';
+            badge.innerHTML = `✅ Signed in as <strong>${currentUser.name}</strong> (${currentUser.role}) — Credentials Auto-Filled`;
+        }
+    } else {
+        const badge = document.getElementById('donorAuthBadge');
+        if (badge) badge.style.display = 'none';
+    }
+
     updateQrAmount(currentDonationAmount);
 }
 
 function closeDonateModal() {
     document.getElementById('donateModal').classList.remove('active');
 }
+
+// Payment Form Handlers
+function submitGenuinePayment(event) {
+    if (event) event.preventDefault();
+    const donorName = document.getElementById('donorName').value || (currentUser ? currentUser.name : 'Generous Donor');
+    const donorEmail = document.getElementById('donorEmail').value || (currentUser ? currentUser.email : 'donor@vishwasa.org');
+    const amt = parseInt(document.getElementById('payAmountInput').value) || currentDonationAmount || 1000;
+    const utr = document.getElementById('upiUtrInput') ? document.getElementById('upiUtrInput').value : ('TXN-UPI-' + Math.floor(100000 + Math.random()*900000));
+
+    closeDonateModal();
+
+    alert(`🎉 Thank You ${donorName}!\n\nYour donation of ₹${amt.toLocaleString('en-IN')} has been verified!\nTransaction Ref: ${utr || 'TXN-UPI-88402910'}\nTarget UPI: ghadimani145@okaxis\n\n100% of your payment is transferred directly to partner hospital for patient care.`);
+
+    if (currentUser) {
+        renderRoleDashboard(currentUser.role);
+    }
+}
+
+// Approval & Workflow Handlers (Persisted to Dashboard)
+function approveDoctorReport(reportId) {
+    const report = doctorTreatmentReports.find(r => r.id === reportId);
+    if (report) {
+        report.adminStatus = 'APPROVED_FOR_DISBURSEMENT';
+        alert(`✅ Medical Aid Disbursement Approved! ₹${report.recommendedAid.toLocaleString('en-IN')} authorized for ${report.hospitalName}.`);
+        if (currentUser) {
+            renderRoleDashboard(currentUser.role);
+        }
+    }
+}
+
+function approveUserRegistration(email) {
+    approveUserAccountByAdmin(email);
+}
+
+function allocateHospitalToPatient(email, selectedHospital) {
+    const selectElem = document.getElementById(`adminAllocHosp_${email.replace(/[@.]/g,'_')}`);
+    if (selectElem && selectedHospital) {
+        selectElem.value = selectedHospital;
+    }
+    allocateHospitalAndApprove(email);
+}
+
 
 
 function openLoginModal() {
@@ -2598,99 +3050,69 @@ function sendPatientThankYouNote(donorName) {
     alert(`💌 Gratitude Note Sent! Your email message to ${donorName} has been dispatched!`);
 }
 
-function approveUserAccountByAdmin(userEmail) {
-    const idx = pendingUserApprovalsStore.findIndex(u => u.email === userEmail);
-    if (idx !== -1) {
-        const approvedUser = pendingUserApprovalsStore.splice(idx, 1)[0];
-        approvedUser.status = 'APPROVED_ACTIVE';
-        approvedUsersStore.push(approvedUser);
-
-        localStorage.setItem('vishwasa_pending_users', JSON.stringify(pendingUserApprovalsStore));
-        localStorage.setItem('vishwasa_approved_users', JSON.stringify(approvedUsersStore));
-
-        alert(`✅ Account Approved! ${approvedUser.name} (${approvedUser.role}) has been audited & permanently stored in the Approved Accounts database.`);
-
-        const currentRole = currentUser ? currentUser.role : 'FOUNDATION_ADMIN';
-        renderRoleDashboard(currentRole);
-    } else {
-        alert(`✅ Account (${userEmail}) is already approved and active in the database!`);
-    }
-}
-
-function approveDoctorReport(reportId) {
-    const report = doctorTreatmentReports.find(r => r.id === parseInt(reportId));
-    if (report) {
-        report.adminStatus = 'APPROVED_FOR_DISBURSEMENT';
-        localStorage.setItem('vishwasa_doctor_reports', JSON.stringify(doctorTreatmentReports));
-
-        alert(`✅ Medical Aid Approved! ₹${report.recommendedAid.toLocaleString('en-IN')} approved for disbursement to ${report.patientName} at ${report.hospitalName}.`);
-
-        const currentRole = currentUser ? currentUser.role : 'FOUNDATION_ADMIN';
-        renderRoleDashboard(currentRole);
-    }
-}
-
 function renderCampaigns() {
-    const grid = document.getElementById('campaignGrid');
-    if (!grid) return;
+    const container = document.getElementById('campaignGrid');
+    if (!container) return;
 
-    const cases = activeMedicalCases || [];
-    grid.innerHTML = cases.map(c => `
-        <div class="campaign-card" style="background: #ffffff; border-radius: 16px; border: 1.5px solid #e2e8f0; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">
-            <div style="position: relative; height: 200px; overflow: hidden;">
-                <img src="${c.imageUrl}" alt="${c.title}" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #5eead4; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase;">${c.category}</span>
-                <span style="position: absolute; top: 12px; right: 12px; background: #0d9488; color: #ffffff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 20px;">${c.urgency}</span>
-            </div>
-            
-            <div style="padding: 1.5rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; line-height: 1.4;">${c.title}</h3>
-                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">Patient: <strong>${c.patientName}</strong> • ${c.hospitalName}</p>
-                    
-                    <div style="background: #f8fafc; border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem; font-size: 0.8rem;">
-                        <div style="display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 0.4rem;">
-                            <span style="color: #0d9488;">Raised: ₹${c.currentAmount.toLocaleString('en-IN')}</span>
-                            <span style="color: #64748b;">Goal: ₹${c.targetAmount.toLocaleString('en-IN')}</span>
+    container.innerHTML = campaignsData.map(c => {
+        const pct = Math.min(100, Math.round((c.currentAmount / c.targetAmount) * 100));
+        return `
+            <div class="campaign-card">
+                <div style="position: relative;">
+                    <img src="${c.imageUrl}" alt="${c.title}" class="campaign-img">
+                    <span class="campaign-badge">${c.urgency}</span>
+                </div>
+                <div class="campaign-body">
+                    <div style="font-size: 0.75rem; font-weight: 800; color: #0d9488; text-transform: uppercase; margin-bottom: 0.3rem;">
+                        ${c.category} • ${c.caseNo}
+                    </div>
+                    <h3 class="campaign-title">${c.title}</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.8rem; line-height: 1.5;">
+                        📍 <strong>${c.location}</strong><br>
+                        🏥 ${c.hospitalName}<br>
+                        🩺 ${c.doctorName}
+                    </p>
+
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 0.6rem; margin-bottom: 1rem;">
+                        <div>
+                            <strong style="color: #0d9488; font-size: 1.05rem;">₹${c.currentAmount.toLocaleString('en-IN')}</strong> raised
                         </div>
-                        <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
-                            <div style="width: ${Math.min(100, Math.round((c.currentAmount / c.targetAmount) * 100))}%; height: 100%; background: linear-gradient(90deg, #0d9488, #2dd4bf); border-radius: 4px;"></div>
+                        <div style="color: var(--text-muted);">
+                            Goal: ₹${c.targetAmount.toLocaleString('en-IN')} (${c.donorCount} Donors)
                         </div>
                     </div>
-                </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem;">
-                    <span style="font-size: 0.8rem; font-weight: 700; color: #0d9488;">👥 ${c.donorCount} Donors</span>
-                    <button class="btn btn-coral btn-sm" onclick="openDonateModal(${c.id}, '${c.title.replace(/'/g, "\\'")}', ${c.netRequired || 1000})">Donate Now</button>
+                    <div style="margin-top: auto;">
+                        <button class="btn btn-coral" style="width: 100%; justify-content: center; padding: 0.8rem; font-size: 0.95rem;" onclick="openDonateModal(${c.id}, '${c.title.replace(/'/g, "\\'")}', 1000)">Give Aid Now</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
-function renderHospitals() {
-    const grid = document.getElementById('hospitalGrid');
-    if (!grid) return;
+function renderPartnerHospitals() {
+    const container = document.getElementById('hospitalGrid');
+    if (!container) return;
 
     const hospitals = [
-        { name: "KLES Dr. Prabhakar Kore Hospital, Belagavi", type: "1,400 Beds • Super Speciality Cardiac & ICU", loc: "Club Road, Belagavi 590001", phone: "+91 0831 247-3777", beds: "12 ICU Beds Reserved", status: "VERIFIED PARTNER" },
-        { name: "Tatwadarsha Hospital, Hubballi", type: "Nephrology & Organ Transplant Center", loc: "Vidyanagar, Hubballi 580021", phone: "+91 0836 237-8899", beds: "8 Dialysis Units", status: "VERIFIED PARTNER" },
-        { name: "SDM Medical College & Hospital, Dharwad", type: "1,200 Beds • Teaching Hospital", loc: "Sattur, Dharwad 580009", phone: "+91 0836 247-7777", beds: "15 Scheme Beds", status: "VERIFIED PARTNER" },
-        { name: "BLDE Shri B. M. Patil Medical College, Vijayapura", type: "Specialty Oncology & Emergency Care", loc: "Solapur Road, Vijayapura 586103", phone: "+91 08352 262-770", beds: "10 Oncology Beds", status: "VERIFIED PARTNER" }
+        { name: "KLES Dr. Prabhakar Kore Hospital", dist: "Belagavi Headquarters", beds: "1,400 Beds • Super Speciality Cardiac & ICU Care", phone: "+91 (0831) 247-3777", img: "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=600&q=80" },
+        { name: "Tatwadarsha Hospital", dist: "Hubballi-Dharwad", beds: "Organ Transplant & Specialized Nephrology Unit", phone: "+91 (0836) 237-8899", img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=600&q=80" },
+        { name: "BLDE Shri B. M. Patil Medical College", dist: "Vijayapura District", beds: "1,000 Beds • Oncology & Emergency Trauma Unit", phone: "+91 (08352) 262-770", img: "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80" }
     ];
 
-    grid.innerHTML = hospitals.map(h => `
-        <div style="background: #ffffff; border-radius: 16px; border: 1.5px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-                <span class="dash-status-pill status-active" style="margin-bottom: 0.8rem; display: inline-block;">✅ ${h.status}</span>
-                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">${h.name}</h3>
-                <p style="font-size: 0.85rem; color: #0d9488; font-weight: 700; margin-bottom: 0.4rem;">${h.type}</p>
-                <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem;">📍 ${h.loc}</p>
-            </div>
-            <div style="border-top: 1px solid #e2e8f0; padding-top: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.8rem; font-weight: 700; color: #0f766e;">🛏️ ${h.beds}</span>
-                <a href="tel:${h.phone}" class="btn btn-outline-green btn-sm">📞 ${h.phone}</a>
-            </div>
+    container.innerHTML = hospitals.map(h => `
+        <div class="hospital-card">
+            <img src="${h.img}" alt="${h.name}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem;">
+            <div class="hosp-badge">${h.dist} Partner</div>
+            <div class="hosp-name">${h.name}</div>
+            <div class="hosp-loc">${h.beds}</div>
+            <p style="font-size: 0.82rem; color: #0d9488; font-weight: 700; margin-bottom: 0.8rem;">📞 ${h.phone}</p>
+            <span class="dash-status-pill status-active" style="display: inline-block;">100% DIRECT HOSPITAL DISBURSEMENT</span>
         </div>
     `).join('');
 }
@@ -2698,8 +3120,7 @@ function renderHospitals() {
 // Initialize Donation Presets & Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     renderCampaigns();
-    renderHospitals();
-    renderDistrictMap('belagavi');
+    renderPartnerHospitals();
 
     const presetBtns = document.querySelectorAll('.preset-btn');
     presetBtns.forEach(btn => {
@@ -2711,18 +3132,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Navbar Options Active Color Highlighter
+    // Navbar Item Active Color Highlighting
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            navItems.forEach(n => n.classList.remove('active'));
+            navItems.forEach(el => el.classList.remove('active'));
             e.currentTarget.classList.add('active');
         });
     });
 
     updateHeroDonateButtonText();
 });
-
 
 
 

@@ -82,19 +82,26 @@ body {
     gap: 1.8rem;
 }
 
-/* Navbar */
+/* Navbar Flexbox Alignment System */
 .navbar {
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-light);
-    padding: 1rem 3rem;
+    padding: 0.75rem 2rem;
+    box-shadow: var(--shadow-subtle);
+}
+
+.navbar-container {
+    max-width: 1350px;
+    margin: 0 auto;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: var(--shadow-subtle);
+    gap: 1.5rem;
 }
 
 .logo-group {
@@ -134,21 +141,38 @@ body {
 
 .nav-menu {
     display: flex;
-    gap: 2rem;
+    align-items: center;
+    gap: 0.4rem;
     list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu li {
+    display: flex;
+    align-items: center;
 }
 
 .nav-item {
-    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--text-secondary);
     transition: var(--transition);
     cursor: pointer;
     text-decoration: none;
+    padding: 0.5rem 0.85rem;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    border-bottom: 2.5px solid transparent;
 }
 
 .nav-item:hover, .nav-item.active {
-    color: var(--primary-green) !important;
+    color: #0d9488;
+    background: rgba(13, 148, 136, 0.1);
+    font-weight: 800;
+    border-bottom-color: #0d9488;
 }
 
 /* User Badge in Nav */
@@ -584,6 +608,81 @@ body {
     margin-bottom: 1rem;
     align-self: flex-start;
     text-transform: uppercase;
+}
+
+/* Medical Appeals Cards Grid & Cards */
+.campaign-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.campaign-card {
+    background: #ffffff;
+    border: 1.5px solid var(--border-light);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+}
+
+.campaign-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary-green);
+    box-shadow: var(--shadow-hover);
+}
+
+.campaign-img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+}
+
+.campaign-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--brand-coral);
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-full);
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+    text-transform: uppercase;
+}
+
+.campaign-body {
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.campaign-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin-bottom: 0.6rem;
+}
+
+.progress-bar-container {
+    background: #e2e8f0;
+    border-radius: var(--radius-full);
+    height: 10px;
+    overflow: hidden;
+    margin-top: auto;
+}
+
+.progress-bar-fill {
+    background: linear-gradient(90deg, var(--primary-green) 0%, #2563eb 100%);
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease-in-out;
 }
 
 /* Accredited Partner Hospitals Section & Grid Cards */

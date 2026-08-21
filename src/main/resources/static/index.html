@@ -30,29 +30,31 @@
 
     <!-- Header Navigation -->
     <nav class="navbar">
-        <a href="#" class="logo-group">
-            <div class="logo-symbol" style="background: transparent; padding: 0; box-shadow: none;">
-                <img src="images/brand-logo.png" alt="Vishwasa Heart Handshake Trust Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(13, 148, 136, 0.4));">
-            </div>
-            <div>
-                <div class="logo-title">Vishwasa</div>
-                <div class="logo-sub">Hope, Healing & Humanity.</div>
-            </div>
-        </a>
+        <div class="navbar-container">
+            <a href="#" class="logo-group">
+                <div class="logo-symbol" style="background: transparent; padding: 0; box-shadow: none;">
+                    <img src="images/brand-logo.png" alt="Vishwasa Heart Handshake Trust Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(13, 148, 136, 0.4));">
+                </div>
+                <div>
+                    <div class="logo-title">Vishwasa</div>
+                    <div class="logo-sub">Hope, Healing & Humanity.</div>
+                </div>
+            </a>
 
-        <ul class="nav-menu">
-            <li><a class="nav-item active" href="#campaigns">Medical Appeals</a></li>
-            <li><a class="nav-item" href="#hospitals">Partner Hospitals</a></li>
-            <li><a class="nav-item" href="#village-campaigns">Village Health</a></li>
-            <li><a class="nav-item" href="#organ-donation">Organ Donation</a></li>
-            <li><a class="nav-item" href="#north-karnataka">District Maps</a></li>
-        </ul>
+            <ul class="nav-menu">
+                <li><a class="nav-item active" href="#campaigns">Medical Appeals</a></li>
+                <li><a class="nav-item" href="#hospitals">Partner Hospitals</a></li>
+                <li><a class="nav-item" href="#village-campaigns">Village Health</a></li>
+                <li><a class="nav-item" href="#organ-donation">Organ Donation</a></li>
+                <li><a class="nav-item" href="#north-karnataka">District Maps</a></li>
+            </ul>
 
-        <div id="navActions" style="display: flex; gap: 0.6rem; align-items: center;">
-            <button class="btn btn-outline-green btn-sm" onclick="openPatientRegisterModal()">Patient Register</button>
-            <button class="btn btn-gold btn-sm" onclick="openVolunteerRegisterModal()">Volunteer Join</button>
-            <button class="btn btn-outline-green btn-sm" onclick="openLoginModal()">Sign In (8 Roles)</button>
-            <button class="btn btn-coral btn-sm" onclick="openDonateModal()">Donate Now</button>
+            <div id="navActions" style="display: flex; gap: 0.6rem; align-items: center;">
+                <button class="btn btn-outline-green btn-sm" onclick="openPatientRegisterModal()">Patient Register</button>
+                <button class="btn btn-gold btn-sm" onclick="openVolunteerRegisterModal()">Volunteer Join</button>
+                <button class="btn btn-outline-green btn-sm" onclick="openLoginModal()">Sign In (8 Roles)</button>
+                <button class="btn btn-coral btn-sm" onclick="openDonateModal()">Donate Now</button>
+            </div>
         </div>
     </nav>
 
@@ -235,8 +237,8 @@
     <section id="north-karnataka" class="section">
         <div class="section-head">
             <span class="section-tag">Interactive Regional Coverage</span>
-            <h2 class="section-heading">North Karnataka District Maps & Real Geoapify GPS Pinpoints</h2>
-            <p style="color: var(--text-muted);">Select a district to view interactive Geoapify map tiles for field volunteers & accredited partner hospitals.</p>
+            <h2 class="section-heading">North Karnataka District Maps & Regional Coverage</h2>
+            <p style="color: var(--text-muted);">Select a district to view field volunteers & accredited partner hospitals.</p>
         </div>
 
         <div class="nk-map-box">
@@ -327,6 +329,8 @@
                 <button class="pay-tab-btn" id="tabBtnCard" type="button" onclick="switchPayMethod('card')">💳 Razorpay Gateway</button>
                 <button class="pay-tab-btn" id="tabBtnBank" type="button" onclick="switchPayMethod('bank')">🏦 Bank NEFT</button>
             </div>
+
+            <div id="donorAuthBadge" style="display: none; background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; border-radius: 8px; padding: 0.6rem 0.8rem; font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem;"></div>
 
             <form onsubmit="submitGenuinePayment(event)">
                 <div class="form-field">
@@ -793,13 +797,7 @@
                             <option value="Gadag">Gadag</option>
                         </select>
                     </div>
-                    <div class="form-field">
-                        <label>Hospital Allocation Status</label>
-                        <div style="background: #f0fdf4; border: 1px solid #86efac; color: #166534; font-size: 0.8rem; font-weight: 700; padding: 0.65rem; border-radius: 8px;">
-                            🏥 Hospital Allocation: To be allocated & assigned by Foundation Admin during verification review.
-                        </div>
                         <input type="hidden" id="regPatientHospital" value="Pending Allocation by Foundation Admin">
-                    </div>
                 </div>
 
                 <!-- Legitimate Document Upload & Verification Section -->
