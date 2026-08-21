@@ -2630,8 +2630,64 @@ function approveDoctorReport(reportId) {
     }
 }
 
+function renderCampaigns() {
+    const grid = document.getElementById('campaignGrid');
+    if (!grid) return;
+
+    grid.innerHTML = campaignsData.map(c => {
+        const pct = Math.min(100, Math.round((c.currentAmount / c.targetAmount) * 100));
+        return `
+            <div class="campaign-card" style="background: #ffffff; border-radius: 16px; border: 1.5px solid #e2e8f0; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: all 0.3s ease;">
+                <div style="position: relative;">
+                    <img src="${c.imageUrl}" alt="${c.title}" style="width: 100%; height: 220px; object-fit: cover;">
+                    <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #5eead4; font-size: 0.75rem; font-weight: 800; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(45, 212, 191, 0.4);">
+                        ${c.category}
+                    </span>
+                    <span style="position: absolute; top: 12px; right: 12px; background: #f43f5e; color: #ffffff; font-size: 0.75rem; font-weight: 800; padding: 4px 12px; border-radius: 20px;">
+                        ${c.urgency}
+                    </span>
+                </div>
+
+                <div style="padding: 1.5rem;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; line-height: 1.4;">${c.title}</h3>
+                    <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
+                        🏥 Hospital: <strong>${c.hospitalName}</strong><br>
+                        👨‍⚕️ Attending Specialist: ${c.doctorName}
+                    </p>
+
+                    <!-- Progress Bar -->
+                    <div style="margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 800; margin-bottom: 0.4rem;">
+                            <span style="color: #0d9488;">Raised: ₹${c.currentAmount.toLocaleString('en-IN')}</span>
+                            <span style="color: var(--text-muted);">Target: ₹${c.targetAmount.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+                            <div style="width: ${pct}%; height: 100%; background: linear-gradient(90deg, #0d9488, #2dd4bf); border-radius: 5px;"></div>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; text-align: right; font-weight: 700;">
+                            ${pct}% Funded • ${c.donorCount} Compassionate Donors
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1.2rem;">
+                        <button class="btn btn-coral" style="flex: 1; justify-content: center; padding: 0.8rem; font-size: 0.95rem;" onclick="openDonateModal(${c.id}, '${c.title}', 1000)">
+                            💖 Donate Now
+                        </button>
+                        <button class="btn btn-outline-green btn-sm" onclick="alert('📋 Verified Medical Case Reference #${c.caseNo}\\n• Patient: ${c.patientName}\\n• Hospital: ${c.hospitalName}\\n• Doctor: ${c.doctorName}\\n• Treatment Status: ${c.treatmentStatus}\\n• Partnership: ${c.partnershipModel}')">
+                            📋 Case Info
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
 // Initialize Donation Presets & Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    renderCampaigns();
+
     const presetBtns = document.querySelectorAll('.preset-btn');
     presetBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -2648,15 +2704,6 @@ document.addEventListener('DOMContentLoaded', () => {
         item.addEventListener('click', (e) => {
             navItems.forEach(n => n.classList.remove('active'));
             e.currentTarget.classList.add('active');
-        });
-    });
-
-    const dropdownItems = document.querySelectorAll('.dropdown-item');
-    dropdownItems.forEach(item => {
-        item.addEventListener('click', () => {
-            navItems.forEach(n => n.classList.remove('active'));
-            const medAppealBtn = document.querySelector('.nav-dropdown-wrapper .nav-item');
-            if (medAppealBtn) medAppealBtn.classList.add('active');
         });
     });
 
