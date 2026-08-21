@@ -134,103 +134,21 @@ body {
 
 .nav-menu {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.2rem;
+    gap: 2rem;
     list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.nav-menu li {
-    display: flex;
-    align-items: center;
 }
 
 .nav-item {
     font-size: 0.92rem;
     font-weight: 700;
     color: var(--text-secondary);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--transition);
     cursor: pointer;
     text-decoration: none;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-full);
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-    line-height: 1.2;
 }
 
-.nav-item:hover {
-    color: #0d9488 !important;
-    background: rgba(13, 148, 136, 0.1) !important;
-    transform: translateY(-1px);
-}
-
-.nav-item.active {
-    color: #ffffff !important;
-    background: #0d9488 !important;
-    font-weight: 800;
-    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
-}
-
-/* Nav Dropdown Menu for Medical Appeals */
-.nav-dropdown-wrapper {
-    position: relative;
-}
-
-.nav-dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 8px;
-    background: #ffffff;
-    border: 1.5px solid #ccfbf1;
-    border-radius: 14px;
-    padding: 8px;
-    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.15);
-    min-width: 250px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 1100;
-}
-
-.nav-dropdown-wrapper:hover .nav-dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.dropdown-item {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #334155;
-    padding: 8px 12px;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.dropdown-item:hover {
-    background: #f0fdf4;
-    color: #0d9488;
-    transform: translateX(4px);
-/* Medical Appeals Campaign Grid Layout */
-.campaign-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
+.nav-item:hover, .nav-item.active {
+    color: var(--primary-green) !important;
 }
 
 /* User Badge in Nav */
