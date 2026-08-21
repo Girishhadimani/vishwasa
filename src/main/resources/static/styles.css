@@ -145,10 +145,19 @@ body {
     transition: var(--transition);
     cursor: pointer;
     text-decoration: none;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-full);
 }
 
-.nav-item:hover, .nav-item.active {
+.nav-item:hover {
     color: var(--primary-green);
+    background: rgba(13, 148, 136, 0.08);
+}
+
+.nav-item.active {
+    color: #ffffff !important;
+    background: var(--primary-green) !important;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
 }
 
 /* User Badge in Nav */

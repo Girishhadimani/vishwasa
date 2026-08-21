@@ -22,8 +22,18 @@ const districtCoordinates = {
     bagalkote: { lat: 16.1852, lng: 75.6961, zoom: 13 }
 };
 
-// Global Store for Pending User Accounts (guarantees dynamic registration displays in Foundation Admin dashboard)
-let pendingUserApprovalsStore = [];
+// Global Store for Pending User Accounts & Approved Accounts
+let pendingUserApprovalsStore = JSON.parse(localStorage.getItem('vishwasa_pending_users')) || [];
+
+let approvedUsersStore = JSON.parse(localStorage.getItem('vishwasa_approved_users')) || [
+    { name: 'Dr. K. Srinivas', email: 'doctor.kles@vishwasa.org', role: 'DOCTOR', documentType: 'KMC License', documentNumber: 'KMC-88204', status: 'APPROVED_ACTIVE', district: 'Belagavi' },
+    { name: 'Ramesh Patil', email: 'volunteer.belagavi@vishwasa.org', role: 'VOLUNTEER', documentType: 'Voter ID', documentNumber: 'EPIC-890214', status: 'APPROVED_ACTIVE', district: 'Belagavi' }
+];
+
+let doctorTreatmentReports = JSON.parse(localStorage.getItem('vishwasa_doctor_reports')) || [
+    { id: 101, patientName: 'Aarav Kumar (#MC-8021)', hospitalName: 'KLES Hospital Belagavi', doctorName: 'Dr. K. Srinivas', diagnosis: 'Pediatric VSD Open Heart Surgery required immediately', recommendedAid: 250000, verdict: 'RECOMMENDED_FOR_FUNDING', adminStatus: 'PENDING_APPROVAL' },
+    { id: 102, patientName: 'Lakshmi Devi (#MC-8022)', hospitalName: 'Tatwadarsha Hospital Hubballi', doctorName: 'Dr. R. Mehta', diagnosis: 'Renal Failure Dialysis & Immunosuppressant Therapy', recommendedAid: 180000, verdict: 'RECOMMENDED_FOR_FUNDING', adminStatus: 'APPROVED_FOR_DISBURSEMENT' }
+];
 
 // Hospitalized Patients & Bed Allocation Database (Managed by Hospital Admin)
 let hospitalPatientsList = [
@@ -989,6 +999,42 @@ function renderRoleDashboard(role) {
                         </tbody>
                     </table>
                 `}
+            </div>
+
+            <!-- Approved Accounts & Verified Network Section -->
+            <div class="dash-card" style="border-top: 4px solid #0d9488; margin-bottom: 2rem;">
+                <div class="dash-card-header">
+                    <div>
+                        <div class="dash-card-title">✅ Approved Accounts & Verified Network (${approvedUsersStore.length})</div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Accounts audited, approved by Foundation Board, and permanently stored in database</p>
+                    </div>
+                    <span class="dash-status-pill status-active">${approvedUsersStore.length} ACTIVE APPROVED</span>
+                </div>
+
+                <table class="dash-table">
+                    <thead>
+                        <tr>
+                            <th>Approved Member</th>
+                            <th>Role</th>
+                            <th>Email</th>
+                            <th>Verified Document</th>
+                            <th>District</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${approvedUsersStore.map(u => `
+                            <tr>
+                                <td><strong>${u.name}</strong></td>
+                                <td><span class="dash-status-pill status-active">${u.role}</span></td>
+                                <td>${u.email}</td>
+                                <td>${u.documentType || 'Aadhaar'} (<code>${u.documentNumber || 'VERIFIED'}</code>)</td>
+                                <td>${u.district || 'Belagavi'}</td>
+                                <td><span class="dash-status-pill status-active">✅ APPROVED ACTIVE</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
             </div>
 
             <!-- Corporate CSR Partners Management Section -->
@@ -2326,7 +2372,13 @@ function updateQrAmount(amount) {
     // Update Deep Link
     const deepLink = document.getElementById('upiAppDeepLink');
     if (deepLink) {
-        deepLink.href = `upi://pay?pa=ghadimani145@okaxis&pn=Vishwasa%20Foundation&cu=INR&am=${val}`;
+        if (currentDonationMode === 'monthly') {
+            deepLink.href = `upi://mandate?pa=ghadimani145@okaxis&pn=Vishwasa%20Foundation&mc=8062&tid=MANDATE01&tr=REC${val}&am=${val}&cu=INR&recur=MONTHLY`;
+            deepLink.innerHTML = `🔄 Click to Setup Monthly AutoPay in GPay / PhonePe (₹${val.toLocaleString('en-IN')}/mo)`;
+        } else {
+            deepLink.href = `upi://pay?pa=ghadimani145@okaxis&pn=Vishwasa%20Foundation&cu=INR&am=${val}`;
+            deepLink.innerHTML = `🚀 Click to Pay in GPay / PhonePe App`;
+        }
     }
 
     // Update Razorpay Modal text
@@ -2347,6 +2399,19 @@ function openDonateModal(id, title, amount) {
     if (modalTitle) {
         modalTitle.innerText = title || "Complete Genuine Payment";
     }
+
+    // Auto-fill logged-in donor credentials if signed in
+    if (currentUser) {
+        const nameField = document.getElementById('donorName');
+        const emailField = document.getElementById('donorEmail');
+        if (nameField) {
+            nameField.value = currentUser.name || currentUser.fullName || 'Verified Donor';
+        }
+        if (emailField) {
+            emailField.value = currentUser.email || currentUser.username || 'donor@vishwasa.org';
+        }
+    }
+
     const modal = document.getElementById('donateModal');
     if (modal) {
         modal.classList.add('active');
@@ -2533,6 +2598,38 @@ function sendPatientThankYouNote(donorName) {
     alert(`💌 Gratitude Note Sent! Your email message to ${donorName} has been dispatched!`);
 }
 
+function approveUserAccountByAdmin(userEmail) {
+    const idx = pendingUserApprovalsStore.findIndex(u => u.email === userEmail);
+    if (idx !== -1) {
+        const approvedUser = pendingUserApprovalsStore.splice(idx, 1)[0];
+        approvedUser.status = 'APPROVED_ACTIVE';
+        approvedUsersStore.push(approvedUser);
+
+        localStorage.setItem('vishwasa_pending_users', JSON.stringify(pendingUserApprovalsStore));
+        localStorage.setItem('vishwasa_approved_users', JSON.stringify(approvedUsersStore));
+
+        alert(`✅ Account Approved! ${approvedUser.name} (${approvedUser.role}) has been audited & permanently stored in the Approved Accounts database.`);
+
+        const currentRole = currentUser ? currentUser.role : 'FOUNDATION_ADMIN';
+        renderRoleDashboard(currentRole);
+    } else {
+        alert(`✅ Account (${userEmail}) is already approved and active in the database!`);
+    }
+}
+
+function approveDoctorReport(reportId) {
+    const report = doctorTreatmentReports.find(r => r.id === parseInt(reportId));
+    if (report) {
+        report.adminStatus = 'APPROVED_FOR_DISBURSEMENT';
+        localStorage.setItem('vishwasa_doctor_reports', JSON.stringify(doctorTreatmentReports));
+
+        alert(`✅ Medical Aid Approved! ₹${report.recommendedAid.toLocaleString('en-IN')} approved for disbursement to ${report.patientName} at ${report.hospitalName}.`);
+
+        const currentRole = currentUser ? currentUser.role : 'FOUNDATION_ADMIN';
+        renderRoleDashboard(currentRole);
+    }
+}
+
 // Initialize Donation Presets & Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     const presetBtns = document.querySelectorAll('.preset-btn');
@@ -2544,8 +2641,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // Navbar Options Active Color Highlighter
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            navItems.forEach(n => n.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+        });
+    });
+
     updateHeroDonateButtonText();
 });
+
 
 
 
