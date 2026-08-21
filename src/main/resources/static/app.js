@@ -2501,9 +2501,6 @@ async function sendEmailNotification(to, subject, html) {
     const emailSubject = subject || 'Vishwasa Healthcare Notification';
     const emailBody = html || '<p>Vishwasa Healthcare Notification</p>';
 
-    // Show visual email dispatch toast on screen
-    showEmailToast(recipient, emailSubject);
-
     try {
         const response = await fetch('/api/email/send', {
             method: 'POST',
@@ -2517,34 +2514,6 @@ async function sendEmailNotification(to, subject, html) {
         console.log("📩 Local Dispatch Confirmed:", err.message);
         return { status: "DISPATCHED_LOCAL", recipient: recipient };
     }
-}
-
-function showEmailToast(toEmail, subjectText) {
-    let toastContainer = document.getElementById('emailToastContainer');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'emailToastContainer';
-        toastContainer.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 380px;';
-        document.body.appendChild(toastContainer);
-    }
-
-    const toast = document.createElement('div');
-    toast.style.cssText = 'background: #0f172a; color: #ffffff; border: 2px solid #5eead4; border-radius: 12px; padding: 14px 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); font-family: sans-serif; transition: opacity 0.5s ease;';
-    toast.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-            <div style="font-weight: 800; color: #5eead4; font-size: 0.9rem;">📩 Email Dispatched</div>
-            <span style="font-size: 0.75rem; color: #94a3b8;">Just now</span>
-        </div>
-        <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff; margin-bottom: 4px;">To: ${toEmail}</div>
-        <div style="font-size: 0.8rem; color: #cbd5e1;">${subjectText}</div>
-    `;
-
-    toastContainer.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 500);
-    }, 4000);
 }
 
 function sendPatientThankYouNote(donorName) {
