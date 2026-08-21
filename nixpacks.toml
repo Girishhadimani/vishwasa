@@ -5,4 +5,4 @@ nixPkgs = ["maven", "openjdk21"]
 cmds = ["mvn clean package -DskipTests"]
 
 [start]
-cmd = "java -jar target/vishwasa-1.0.0.jar --server.port=$PORT"
+cmd = "java -Djava.net.preferIPv4Stack=true -jar target/vishwasa-1.0.0.jar --server.port=$PORT"
