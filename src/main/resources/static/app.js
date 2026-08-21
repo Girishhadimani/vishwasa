@@ -1037,9 +1037,9 @@ function renderRoleDashboard(role) {
             <div class="dashboard-banner">
                 <div>
                     <div class="dashboard-banner-title">Donor Portal — ${currentUser ? currentUser.name : 'Generous Supporter'}</div>
-                    <div class="dashboard-banner-sub">50% Tax Exemption (80G) • Direct Patient Impact Tracker</div>
+                    <div class="dashboard-banner-sub">Direct Patient Impact Tracker & Hospital Bill Receipts</div>
                 </div>
-                <button class="btn btn-gold" onclick="generateAndDownloadReport('TAX_RECEIPT_80G', '${currentUser ? currentUser.name : 'Donor'}')">📥 Download 80G Tax Receipt PDF</button>
+                <button class="btn btn-gold" onclick="generateAndDownloadReport('ITEMIZED_HOSPITAL_BILL', '${currentUser ? currentUser.name : 'Donor'}')">📥 Download Patient Discharge Bill PDF</button>
             </div>
 
             <div class="dashboard-card-grid">
@@ -1049,9 +1049,9 @@ function renderRoleDashboard(role) {
                     <p style="font-size: 0.8rem; color: var(--text-muted);">Across verified medical campaigns in Belagavi & Hubballi.</p>
                 </div>
                 <div class="dash-card">
-                    <div class="dash-card-title">Tax Exemption Savings (80G)</div>
-                    <div style="font-size: 2.2rem; font-weight: 800; color: var(--primary-dark);">₹${Math.round(fundLedgerTransactions.filter(t => t.type === 'DONATION').reduce((acc, t) => acc + t.amount, 0) * 0.5).toLocaleString('en-IN')} Saved</div>
-                    <p style="font-size: 0.8rem; color: var(--text-muted);">50% deduction under Income Tax Act Sec 80G.</p>
+                    <div class="dash-card-title">Patients Supported</div>
+                    <div style="font-size: 2.2rem; font-weight: 800; color: var(--primary-dark);">${campaignsData.length} Cases</div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">100% direct hospital fund disbursement for surgical care.</p>
                 </div>
             </div>
 
@@ -1087,14 +1087,15 @@ function renderRoleDashboard(role) {
             </div>
         `;
     } else if (role === 'CSR_SPONSOR') {
-        // FULL CORPORATE CSR SPONSOR DASHBOARD
+        // FULL CORPORATE CSR SPONSOR DASHBOARD (WITH 80G TAX EXEMPTION FOR CORPORATE GRANTS)
         container.innerHTML = `
             <div class="dashboard-banner">
                 <div>
                     <div class="dashboard-banner-title">Corporate CSR Portal — Infosys Foundation</div>
-                    <div class="dashboard-banner-sub">Volunteer Stipend Funding, Village Health Drives & Corporate MoU Tracking</div>
+                    <div class="dashboard-banner-sub">Corporate 80G Tax Exemption • Volunteer Stipend Funding & MoU Tracking</div>
                 </div>
                 <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <button class="btn btn-gold" onclick="generateAndDownloadReport('TAX_RECEIPT_80G', 'Infosys Foundation CSR')">📜 Download Corporate 80G Tax Exemption Certificate PDF</button>
                     <button class="btn btn-green" onclick="generateAndDownloadReport('EXECUTIVE_AUDIT', 'Infosys Foundation CSR')">📥 Download Corporate CSR MoU Audit PDF</button>
                 </div>
             </div>
@@ -1103,6 +1104,14 @@ function renderRoleDashboard(role) {
                 <div class="dash-card">
                     <div class="dash-card-title">Total CSR Grant Committed</div>
                     <div style="font-size: 2.2rem; font-weight: 800; color: #2563eb;">₹50,00,000</div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">Infosys Foundation Corporate Healthcare MoU</p>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-card-title">Corporate 80G Tax Exemption Savings</div>
+                    <div style="font-size: 2.2rem; font-weight: 800; color: #2563eb;">₹25,00,000 Saved</div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);">50% Corporate Tax Exemption under Sec 80G of Income Tax Act</p>
+                </div>
+            </div>
                     <p style="font-size: 0.8rem; color: var(--text-muted);">Infosys Foundation CSR Grant for North Karnataka.</p>
                 </div>
                 <div class="dash-card">
