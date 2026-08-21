@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vishwasa — Hope, Healing & Humanity | Medical Relief Foundation</title>
+    <meta name="description" content="Vishwasa is a Section 8 NGO in North Karnataka (Headquarters in Belagavi) providing transparent, audited medical crowdfunding and 100% direct hospital disbursement.">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Leaflet.js Real Map CSS & SDK for Geoapify Tiles -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Razorpay Payment Gateway JS SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- html2canvas and jsPDF SDK for Genuine PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Top Announcement Bar -->
+    <div class="top-bar">
+        <div>
+            <span class="top-bar-badge">HOPE & HEALING</span> Dedicated to saving lives and serving vulnerable families with love and dignity.
+        </div>
+        <div class="top-bar-contact">
+            <span>📍 Belagavi HQ: Club Road, Opposite Civil Hospital, Belagavi 590001</span>
+            <span>📞 Helpline: +91 (0831) 240-9000</span>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <nav class="navbar">
+        <a href="#" class="logo-group">
+            <div class="logo-symbol" style="background: transparent; padding: 0; box-shadow: none;">
+                <img src="images/brand-logo.png" alt="Vishwasa Heart Handshake Trust Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(13, 148, 136, 0.4));">
+            </div>
+            <div>
+                <div class="logo-title">Vishwasa</div>
+                <div class="logo-sub">Hope, Healing & Humanity.</div>
+            </div>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a class="nav-item active" href="#campaigns">Medical Appeals</a></li>
+            <li><a class="nav-item" href="#hospitals">Partner Hospitals</a></li>
+            <li><a class="nav-item" href="#village-campaigns">Village Health</a></li>
+            <li><a class="nav-item" href="#organ-donation">Organ Donation</a></li>
+            <li><a class="nav-item" href="#north-karnataka">District Maps</a></li>
+        </ul>
+
+        <div id="navActions" style="display: flex; gap: 0.6rem; align-items: center;">
+            <button class="btn btn-outline-green btn-sm" onclick="openPatientRegisterModal()">Patient Register</button>
+            <button class="btn btn-gold btn-sm" onclick="openVolunteerRegisterModal()">Volunteer Join</button>
+            <button class="btn btn-outline-green btn-sm" onclick="openLoginModal()">Sign In (8 Roles)</button>
+            <button class="btn btn-coral btn-sm" onclick="openDonateModal()">Donate Now</button>
+        </div>
+    </nav>
+
+    <!-- Role Dashboard View Section (Appears after Sign In) -->
+    <section id="dashboardSection" class="dashboard-section" style="display: none;">
+        <div id="dashboardContainer">
+            <!-- Dynamically populated by app.js when signed in -->
+        </div>
+    </section>
+
+    <!-- Hero Section with Inspiring Healthcare Background Photo -->
+    <header class="ngo-hero">
+        <div class="hero-overlay-bg"></div>
+        <div class="hero-content-grid">
+            <div>
+                <div class="hero-badge-tag">
+                    <img src="images/brand-logo.png" style="width: 20px; height: 20px; vertical-align: middle;"> Registered Section 8 NGO • Belagavi Headquarters
+                </div>
+                <h1 class="hero-headline">Restoring <span>Health & Hope</span> Across North Karnataka</h1>
+                <p class="hero-subtext">Vishwasa connects critical medical cases in Belagavi, Hubballi-Dharwad, Vijayapura & Bagalkote with compassionate volunteer field checks, doctor verification, and 100% direct hospital care.</p>
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <a href="#campaigns" class="btn btn-coral" style="padding: 0.9rem 1.8rem; font-size: 1rem;">Support a Patient Case</a>
+                    <button class="btn btn-outline-green" style="border-color: #5eead4; color: #5eead4; padding: 0.9rem 1.8rem; font-size: 1rem;" onclick="openPatientRegisterModal()">Patient Registration</button>
+                    <button class="btn btn-gold" style="padding: 0.9rem 1.8rem; font-size: 1rem;" onclick="openVolunteerRegisterModal()">Become a Volunteer</button>
+                </div>
+
+                <!-- Related Photo Showcase Card -->
+                <div class="hero-photo-showcase">
+                    <img src="https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=400&q=80" alt="Hope, Healing & Humanity" class="hero-showcase-img">
+                    <div>
+                        <div style="font-size: 0.9rem; font-weight: 800; color: #5eead4;">🏥 Verified Medical Relief Network</div>
+                        <div style="font-size: 0.8rem; color: #cbd5e1;">450+ Active Field Volunteers conducting door-to-door verification in rural Belagavi & Dharwad villages.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Donation Box with Humanity-Based Words -->
+            <div class="hero-donate-card">
+                <div class="donate-card-title">Make an Immediate Difference</div>
+                <div class="donate-card-sub">Bring light, healing, and life to a family in desperate need. Every act of compassion restores hope and saves a precious human life.</div>
+                
+                <div class="type-toggle">
+                    <button class="type-btn active" onclick="toggleDonationMode('once')">Give One-Time</button>
+                    <button class="type-btn" onclick="toggleDonationMode('monthly')">Give Monthly 💖</button>
+                </div>
+
+                <div class="amount-presets">
+                    <button class="preset-btn" data-amount="500">₹500</button>
+                    <button class="preset-btn active" data-amount="1000">₹1,000</button>
+                    <button class="preset-btn" data-amount="2500">₹2,500</button>
+                    <button class="preset-btn" data-amount="5000">₹5,000</button>
+                    <button class="preset-btn" data-amount="10000">₹10,000</button>
+                    <button class="preset-btn" data-amount="25000">₹25,000</button>
+                </div>
+
+                <button class="btn btn-coral" id="heroDonateSubmitBtn" style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.1rem;" onclick="openDonateModal()">Give ₹1,000 Once</button>
+                
+                <div style="text-align: center; margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+                    🔒 256-Bit SSL Encrypted • 100% Direct Hospital Transfer Guarantee
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- NGO Impact Strip -->
+    <div id="impact" class="impact-strip">
+        <div class="impact-container">
+            <div>
+                <div class="impact-num">₹1.25 Cr+</div>
+                <div class="impact-desc">Direct Medical Aid Disbursed</div>
+            </div>
+            <div>
+                <div class="impact-num">100%</div>
+                <div class="impact-desc">Direct Hospital Account Transfer</div>
+            </div>
+            <div>
+                <div class="impact-num">450+</div>
+                <div class="impact-desc">North Karnataka Field Volunteers</div>
+            </div>
+            <div>
+                <div class="impact-num">38+</div>
+                <div class="impact-desc">Partner Hospitals & Medical Colleges</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Medical Appeals -->
+    <section id="campaigns" class="section">
+        <div class="section-head">
+            <span class="section-tag">Urgent North Karnataka Appeals</span>
+            <h2 class="section-heading">Verified by Specialist Doctors & Field Volunteers</h2>
+            <p style="color: var(--text-muted);">Browse urgent surgeries and critical treatments needing immediate financial support in Belagavi, Hubballi & surrounding districts.</p>
+        </div>
+
+        <div class="campaign-grid" id="campaignGrid">
+            <!-- Dynamically populated by app.js -->
+        </div>
+    </section>
+
+    <!-- Village Health Campaigns & ASHA Collaboration Section -->
+    <section id="village-campaigns" class="section" style="background: var(--bg-soft); border-radius: var(--radius-lg);">
+        <div class="section-head">
+            <span class="section-tag">Community Outreach</span>
+            <h2 class="section-heading">Village Health Campaigns & ASHA Worker Network</h2>
+            <p style="color: var(--text-muted);">Partnering with accredited ASHA workers for rural maternal health, menstrual hygiene kits, and preventive screenings across Belagavi villages.</p>
+        </div>
+
+        <div class="model-card-grid">
+            <div class="model-card active">
+                <span class="model-tag">Maternal & Child Health</span>
+                <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">Antenatal Care & Nutrition</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">ASHA-assisted nutrition kit distribution and high-risk pregnancy screening in Shahapur & rural Belagavi.</p>
+                <button class="btn btn-outline-green btn-sm" onclick="openLoginModal()">ASHA Worker Portal</button>
+            </div>
+            <div class="model-card">
+                <span class="model-tag">Women's Health</span>
+                <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">Menstrual Hygiene Kits</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Free distribution of 1,800+ eco-friendly sanitary kits & educational workshops in North Karnataka schools.</p>
+                <button class="btn btn-gold btn-sm" onclick="openSponsorHygieneModal()">Sponsor Hygiene Kit (₹500)</button>
+            </div>
+            <div class="model-card">
+                <span class="model-tag">Preventive Screening</span>
+                <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 0.5rem;">Cancer & Diabetes Camps</h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Early detection camps conducted jointly with KLES Dr. Prabhakar Kore Hospital doctors.</p>
+                <button class="btn btn-outline-green btn-sm" onclick="openLoginModal()">View Camp Schedule</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Organ Donation Awareness & Official NOTTO Integration -->
+    <section id="organ-donation" class="section">
+        <div class="section-head">
+            <span class="section-tag">Life-Saving Awareness</span>
+            <h2 class="section-heading">Organ Donation Education & Official NOTTO Pledge</h2>
+            <p style="color: var(--text-muted);">Learn about organ donation myths, discuss with family, and pledge officially through India's National Organ & Tissue Transplant Organization (NOTTO).</p>
+        </div>
+
+        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: var(--radius-lg); padding: 3rem; color: #ffffff; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 3rem; align-items: center;">
+            <div>
+                <span style="background: rgba(45, 212, 191, 0.2); color: #5eead4; border: 1px solid rgba(45, 212, 191, 0.4); font-size: 0.75rem; font-weight: 800; padding: 0.3rem 0.8rem; border-radius: var(--radius-full); text-transform: uppercase;">Official Guidance</span>
+                <h3 style="font-family: var(--font-serif); font-size: 2.2rem; margin: 1rem 0;">Give the Gift of Life</h3>
+                <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 17;">
+                    One organ donor can save up to 8 lives and enhance 50+ lives. Vishwasa promotes organ donor education in North Karnataka while guiding citizens to complete their official legal pledge on NOTTO.
+                </p>
+                <div style="font-size: 0.8rem; color: #5eead4; margin-bottom: 1.5rem;">
+                    📌 Note: As mandated by Indian organ transplantation regulations, online pledging provides an official card, while family/next-of-kin consent remains essential.
+                </div>
+                <a href="https://notto.mohfw.gov.in/" target="_blank" class="btn btn-green" style="padding: 0.9rem 1.8rem;">Pledge Officially on NOTTO (Govt of India) ↗</a>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-md); padding: 2rem;">
+                <h4 style="font-size: 1.2rem; color: #2dd4bf; margin-bottom: 1rem;">Organ Donation Myths vs Facts</h4>
+                <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 0.8rem;">❌ <strong>Myth:</strong> Wealthy people get priority on transplant lists.</div>
+                <div style="font-size: 0.85rem; color: #5eead4; margin-bottom: 1.2rem;">✅ <strong>Fact:</strong> Organ allocation is governed strictly by medical urgency & NOTTO waiting list matching.</div>
+                <div style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 0.8rem;">❌ <strong>Myth:</strong> Organ donation disfigures the body.</div>
+                <div style="font-size: 0.85rem; color: #5eead4;">✅ <strong>Fact:</strong> Donated organs are removed surgically with utmost respect and dignity.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partner Hospitals Section -->
+    <section id="hospitals" class="section" style="background: var(--bg-soft); border-radius: var(--radius-lg);">
+        <div class="section-head">
+            <span class="section-tag">Accredited Network</span>
+            <h2 class="section-heading">North Karnataka Partner Hospitals</h2>
+            <p style="color: var(--text-muted);">We disburse 100% of campaign funds directly to partner hospital billing departments.</p>
+        </div>
+
+        <div class="hospital-grid" id="hospitalGrid">
+            <!-- Dynamically populated by app.js -->
+        </div>
+    </section>
+
+    <!-- Interactive North Karnataka District Maps Section with Real Geoapify Map Tiles -->
+    <section id="north-karnataka" class="section">
+        <div class="section-head">
+            <span class="section-tag">Interactive Regional Coverage</span>
+            <h2 class="section-heading">North Karnataka District Maps & Real Geoapify GPS Pinpoints</h2>
+            <p style="color: var(--text-muted);">Select a district to view interactive Geoapify map tiles for field volunteers & accredited partner hospitals.</p>
+        </div>
+
+        <div class="nk-map-box">
+            <div>
+                <div style="font-weight: 800; font-size: 1.1rem; color: var(--primary-dark);">Select District Region</div>
+                
+                <div class="district-pill-grid">
+                    <div class="district-pill active" data-district="belagavi" onclick="renderDistrictMap('belagavi')">
+                        <div class="district-name">Belagavi (Headquarters)</div>
+                        <div class="district-stats">145 Volunteers • 12 Hospitals</div>
+                    </div>
+                    <div class="district-pill" data-district="hubballi" onclick="renderDistrictMap('hubballi')">
+                        <div class="district-name">Hubballi-Dharwad</div>
+                        <div class="district-stats">110 Volunteers • 9 Hospitals</div>
+                    </div>
+                    <div class="district-pill" data-district="vijayapura" onclick="renderDistrictMap('vijayapura')">
+                        <div class="district-name">Vijayapura District</div>
+                        <div class="district-stats">75 Volunteers • 6 Hospitals</div>
+                    </div>
+                    <div class="district-pill" data-district="bagalkote" onclick="renderDistrictMap('bagalkote')">
+                        <div class="district-name">Bagalkote & Haveri</div>
+                        <div class="district-stats">68 Volunteers • 5 Hospitals</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-visual-container" id="districtInfoDisplay">
+                <!-- Dynamically populated by app.js Leaflet + Geoapify map engine -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="logo-group" style="margin-bottom: 1.2rem;">
+                    <div class="logo-symbol" style="background: transparent; padding: 0; box-shadow: none;">
+                        <img src="images/brand-logo.png" alt="Vishwasa Heart Handshake Trust Logo" style="width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(13, 148, 136, 0.4));">
+                    </div>
+                    <div>
+                        <div class="logo-title" style="color: #ffffff;">Vishwasa</div>
+                        <div class="logo-sub" style="color: #5eead4;">Hope, Healing & Humanity.</div>
+                    </div>
+                </div>
+                <p>Vishwasa Healthcare Foundation is a registered Section 8 non-profit organization dedicated to transparent healthcare access, volunteer field audit, and direct hospital fund disbursement across North Karnataka.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <p><a href="#campaigns">Medical Appeals</a></p>
+                <p><a href="#hospitals">Partner Hospitals</a></p>
+                <p><a href="#village-campaigns">Village Health</a></p>
+                <p><a href="#organ-donation">Organ Donation</a></p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Belagavi Headquarters</h4>
+                <p>Vishwasa NGO Building</p>
+                <p>Club Road, Opp. Civil Hospital</p>
+                <p>Belagavi, North Karnataka 590001</p>
+                <p>Helpline: +91 (0831) 240-9000</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Legal & Compliance</h4>
+                <p>80G Reg: AABTV1234F</p>
+                <p>FCRA Reg: 094420188</p>
+                <p>CSR Reg: CSR00018920</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            © 2026 Vishwasa Healthcare Foundation — Hope, Healing & Humanity. Belagavi Headquarters. All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- NGO Genuine Payment Modal with Target UPI: ghadimani145@okaxis & Razorpay -->
+    <div class="ngo-modal-overlay" id="donateModal">
+        <div class="ngo-modal">
+            <button class="modal-close-btn" onclick="closeDonateModal()">×</button>
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem;" id="modalCampaignTitle">Complete Genuine Payment</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">Your contribution directly funds life-saving hospital treatments.</p>
+            
+            <!-- Payment Method Tabs -->
+            <div class="pay-method-tab">
+                <button class="pay-tab-btn active" id="tabBtnUpi" type="button" onclick="switchPayMethod('upi')">⚡ Direct UPI (GPay/PhonePe)</button>
+                <button class="pay-tab-btn" id="tabBtnCard" type="button" onclick="switchPayMethod('card')">💳 Razorpay Gateway</button>
+                <button class="pay-tab-btn" id="tabBtnBank" type="button" onclick="switchPayMethod('bank')">🏦 Bank NEFT</button>
+            </div>
+
+            <form onsubmit="submitGenuinePayment(event)">
+                <div class="form-field">
+                    <label>Donor Full Name</label>
+                    <input type="text" id="donorName" placeholder="e.g. Rajesh Kulkarni" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Email Address</label>
+                        <input type="email" id="donorEmail" placeholder="donor@vishwasa.org" required>
+                    </div>
+                    <div class="form-field">
+                        <label>PAN Card Number</label>
+                        <input type="text" id="donorPan" placeholder="ABCDE1234F" style="text-transform: uppercase;" required>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Donation Amount (₹)</label>
+                    <input type="number" id="payAmountInput" value="1000" min="100" onchange="updateQrAmount(this.value)" required>
+                </div>
+
+                <!-- Direct UPI View -->
+                <div id="payViewUpi" class="upi-qr-box">
+                    <div style="font-size: 0.95rem; font-weight: 800; color: #5eead4;">📱 Step 1: Scan & Pay via GPay, PhonePe, Paytm or BHIM UPI</div>
+                    <div style="font-size: 0.85rem; color: #ffffff; margin: 0.4rem 0;">
+                        Target UPI ID: <strong style="color: #2dd4bf; background: rgba(45,212,191,0.2); padding: 2px 8px; border-radius: 4px;">ghadimani145@okaxis</strong>
+                    </div>
+                    
+                    <img id="upiQrCodeImg" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=ghadimani145@okaxis%26pn=Vishwasa%20Foundation%26cu=INR%26am=1000" alt="UPI QR Code ghadimani145@okaxis" class="qr-code-img">
+                    
+                    <div style="margin-top: 0.5rem;">
+                        <a id="upiAppDeepLink" href="upi://pay?pa=ghadimani145@okaxis&pn=Vishwasa%20Foundation&cu=INR&am=1000" class="upi-app-btn">
+                            🚀 Click to Pay in GPay / PhonePe App
+                        </a>
+                    </div>
+
+                    <div style="margin-top: 1.2rem; text-align: left; background: rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 8px;">
+                        <label style="font-size: 0.8rem; font-weight: 800; color: #5eead4; display: block; margin-bottom: 0.3rem;">
+                            Step 2: Enter 12-Digit UPI UTR / Bank Reference Number after Payment:
+                        </label>
+                        <input type="text" id="upiUtrInput" placeholder="e.g. 423456789012" maxlength="12" style="background: #ffffff; color: #0f172a; font-weight: 800; letter-spacing: 1px;" required>
+                    </div>
+                </div>
+
+                <!-- Razorpay Gateway Launcher View -->
+                <div id="payViewCard" style="display: none; background: #0c2340; color: #ffffff; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.2rem; text-align: center; box-shadow: 0 10px 25px rgba(12,35,64,0.3);">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 0.8rem;">
+                        <span style="font-weight: 900; font-size: 1.3rem; letter-spacing: -0.5px; color: #528ff0;">Razorpay</span>
+                        <span style="background: #2b6cb0; font-size: 0.7rem; font-weight: 800; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">SECURED</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #cbd5e1; margin-bottom: 1.2rem;">Official Razorpay Payment Gateway supporting Cards, Netbanking & UPI.</p>
+                    <button type="button" class="btn btn-green" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; background: #3182ce; border-color: #3182ce;" onclick="openRazorpayModalWindow()">
+                        🚀 Launch Razorpay Checkout Modal Window
+                    </button>
+                </div>
+
+                <!-- Bank NEFT View -->
+                <div id="payViewBank" style="display: none; background: #f8fafc; border: 1.5px solid #2563eb; padding: 1rem; border-radius: 8px; margin-bottom: 1.2rem;">
+                    <div style="font-weight: 800; color: #1e40af; font-size: 0.9rem; margin-bottom: 0.4rem;">🏦 Vishwasa Foundation ICICI Bank Account:</div>
+                    <div style="font-size: 0.8rem; color: #334155;">
+                        • Account Name: <strong>Vishwasa Healthcare Foundation</strong><br>
+                        • Account No: <strong>001205018899</strong> (Current Account)<br>
+                        • IFSC Code: <strong>ICIC0000012</strong> (ICICI Bank Belagavi Main Branch)
+                    </div>
+                    <div style="margin-top: 0.8rem;">
+                        <label style="font-size: 0.8rem; font-weight: 800; color: #1e40af;">Enter NEFT Transaction UTR Reference:</label>
+                        <input type="text" id="bankUtrInput" placeholder="e.g. N24880199248" style="margin-top: 0.3rem;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-coral" id="paySubmitButton" style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.05rem;">
+                    ⚡ Verify & Confirm Payment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Official Razorpay Checkout Modal Window -->
+    <div class="ngo-modal-overlay" id="razorpayModalWindow">
+        <div class="ngo-modal" style="background: #ffffff; padding: 0; overflow: hidden; max-width: 440px; border-radius: 16px; border: 2px solid #0c2340;">
+            <!-- Razorpay Header -->
+            <div style="background: #0c2340; padding: 1.2rem 1.5rem; color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="images/brand-logo.png" style="width: 32px; height: 32px; object-fit: contain;">
+                    <div>
+                        <div style="font-weight: 900; font-size: 1.1rem; color: #ffffff;">Vishwasa Foundation</div>
+                        <div style="font-size: 0.75rem; color: #a0aec0;">Medical Relief Fund</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.2rem; font-weight: 800; color: #528ff0;" id="rzpModalAmountText">₹1,000</div>
+                    <button type="button" style="background: none; border: none; color: #a0aec0; font-size: 1.2rem; cursor: pointer;" onclick="closeRazorpayModalWindow()">×</button>
+                </div>
+            </div>
+
+            <!-- Razorpay Body (Options Step 1 -> Details Step 2) -->
+            <div style="padding: 1.5rem; color: #0f172a;">
+                <div id="rzpStep1">
+                    <div style="font-size: 0.85rem; font-weight: 800; color: #4a5568; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">Select Payment Option</div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1.5px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s;" onclick="selectRzpOption('upi')">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 1.4rem;">⚡</span>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 0.95rem;">UPI / QR Code</div>
+                                    <div style="font-size: 0.75rem; color: #718096;">Google Pay, PhonePe, Paytm, BHIM</div>
+                                </div>
+                            </div>
+                            <span style="font-size: 1.1rem; color: #3182ce;">➔</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1.5px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s;" onclick="selectRzpOption('card')">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 1.4rem;">💳</span>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 0.95rem;">Card</div>
+                                    <div style="font-size: 0.75rem; color: #718096;">Visa, MasterCard, RuPay, Maestro</div>
+                                </div>
+                            </div>
+                            <span style="font-size: 1.1rem; color: #3182ce;">➔</span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1.5px solid #e2e8f0; border-radius: 10px; cursor: pointer; transition: all 0.2s;" onclick="selectRzpOption('netbanking')">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 1.4rem;">🏦</span>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 0.95rem;">Netbanking</div>
+                                    <div style="font-size: 0.75rem; color: #718096;">All Indian Banks Supported</div>
+                                </div>
+                            </div>
+                            <span style="font-size: 1.1rem; color: #3182ce;">➔</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 Payment Details (Shown after selecting payment method) -->
+                <div id="rzpStep2" style="display: none;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; cursor: pointer; color: #3182ce; font-weight: 800; font-size: 0.85rem;" onclick="backToRzpStep1()">
+                        <span>← Back to Options</span>
+                    </div>
+
+                    <div id="rzpDetailViewContent">
+                        <!-- Dynamically filled by app.js based on selected payment method -->
+                    </div>
+
+                    <button type="button" class="btn btn-green" style="width: 100%; justify-content: center; padding: 1rem; font-size: 1.05rem; background: #3182ce; border-color: #3182ce; margin-top: 1.2rem;" onclick="confirmRazorpayModalPayment()">
+                        🔒 Pay Now via Razorpay
+                    </button>
+                </div>
+            </div>
+            
+            <div style="background: #f7fafc; padding: 0.8rem; text-align: center; font-size: 0.75rem; color: #a0aec0; border-top: 1px solid #edf2f7;">
+                🔒 Secured by 256-Bit SSL Razorpay Encryption
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign In & New Account Registration Modal -->
+    <div class="ngo-modal-overlay" id="loginModal">
+        <div class="ngo-modal">
+            <button class="modal-close-btn" onclick="closeLoginModal()">×</button>
+            
+            <!-- Tab Switcher for Sign In vs Create Account -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.2rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+                <button type="button" id="tabAuthSignin" class="pay-tab-btn active" onclick="switchAuthTab('signin')">🔑 Sign In (Existing User)</button>
+                <button type="button" id="tabAuthRegister" class="pay-tab-btn" onclick="switchAuthTab('register')">👤 Create Account & Set Password</button>
+            </div>
+
+            <!-- Sign In View -->
+            <div id="authSigninView">
+                <div class="test-creds-box">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 0.6rem;">⚡ 1-Click Select Role & Auto-Fill (8 Roles):</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                        <span class="role-pill" onclick="fillTestCredentials('patient')">🧑‍🦽 Patient</span>
+                        <span class="role-pill" onclick="fillTestCredentials('donor')">💖 Donor</span>
+                        <span class="role-pill" onclick="fillTestCredentials('volunteer')">👤 Volunteer</span>
+                        <span class="role-pill" onclick="fillTestCredentials('doctor')">👨‍⚕️ Doctor</span>
+                        <span class="role-pill" onclick="fillTestCredentials('hospital')">🏥 Hospital Admin</span>
+                        <span class="role-pill" onclick="fillTestCredentials('admin')">🛡️ Admin</span>
+                        <span class="role-pill" onclick="fillTestCredentials('asha')">👩‍⚕️ ASHA Worker</span>
+                        <span class="role-pill" onclick="fillTestCredentials('csr')">🏢 CSR Sponsor</span>
+                    </div>
+                </div>
+
+                <div id="loginRoleBadge" style="display: none; font-size: 0.8rem; color: var(--primary-dark); background: #e0f2fe; padding: 0.5rem; border-radius: var(--radius-sm); margin-bottom: 1rem;"></div>
+
+                <form onsubmit="performLogin(event)">
+                    <div class="form-field">
+                        <label>Username / Email</label>
+                        <input type="text" id="loginEmail" placeholder="patient@vishwasa.org" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-green" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; margin-top: 1rem;">Sign In to Dashboard</button>
+                </form>
+            </div>
+
+            <!-- Create Account & Set Password View with Medical Council Certificate for Doctors -->
+            <div id="authRegisterView" style="display: none;">
+                <h4 style="font-size: 1.1rem; font-weight: 800; color: #0d9488; margin-bottom: 0.5rem;">Set Up Your User Credentials</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Register your account with Vishwasa Foundation and submit your legitimate ID document for approval.</p>
+
+                <form onsubmit="handleAccountRegistrationWithPassword(event)">
+                    <div class="form-field">
+                        <label>Full Name</label>
+                        <input type="text" id="authRegName" placeholder="e.g. Dr. K. Srinivas / Ramesh Kumar" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Email Address (Username)</label>
+                        <input type="email" id="authRegEmail" placeholder="doctor.kles@vishwasa.org" required>
+                    </div>
+                    <div class="form-field">
+                        <label>User Role</label>
+                        <select id="authRegRole" onchange="updateAuthDocOptions(this.value)" required>
+                            <option value="DONOR">💖 Donor</option>
+                            <option value="PATIENT">🧑‍🦽 Patient / Beneficiary</option>
+                            <option value="VOLUNTEER">👤 Field Volunteer</option>
+                            <option value="DOCTOR">👨‍⚕️ Specialist Doctor (Requires Medical Council Certificate)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Document Verification Section -->
+                    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem;">
+                        <div style="font-weight: 800; font-size: 0.8rem; color: #0f766e; margin-bottom: 0.4rem;" id="authDocHeader">🛡️ Legitimate Document Verification</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem;">
+                            <div class="form-field" style="margin-bottom: 0;">
+                                <label style="font-size: 0.75rem;">Document Type</label>
+                                <select id="authRegDocType">
+                                    <option value="Aadhaar Card">Aadhaar Card (12-Digit UIDAI)</option>
+                                    <option value="Karnataka Medical Council (KMC) Certificate">Karnataka Medical Council (KMC) Registration Certificate</option>
+                                    <option value="National Medical Commission (NMC) License">National Medical Commission (NMC) License</option>
+                                    <option value="Voter ID Card">Voter ID Card (EPIC)</option>
+                                </select>
+                            </div>
+                            <div class="form-field" style="margin-bottom: 0;">
+                                <label style="font-size: 0.75rem;">Document ID Ref / Reg No</label>
+                                <input type="text" id="authRegDocNo" placeholder="e.g. KMC-88204 or Aadhaar No">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-field">
+                            <label>Create Password</label>
+                            <input type="password" id="authRegPassword" placeholder="••••••••" required>
+                        </div>
+                        <div class="form-field">
+                            <label>Confirm Password</label>
+                            <input type="password" id="authRegConfirmPassword" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; margin-top: 1rem;">Create Account & Submit for Audit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Corporate CSR Sponsor Modal (Foundation Admin Portal) -->
+    <div class="ngo-modal-overlay" id="csrAddModal">
+        <div class="ngo-modal">
+            <button class="modal-close-btn" onclick="closeCsrAddModal()">×</button>
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem;">+ Add Corporate CSR Sponsor</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Register corporate CSR partner for healthcare fund allocation</p>
+            
+            <form onsubmit="handleCsrSponsorSubmit(event)">
+                <div class="form-field">
+                    <label>Company / Organization Name</label>
+                    <input type="text" id="csrCompanyName" placeholder="e.g. Infosys Foundation / Wipro Cares" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>CSR Committed Grant (₹)</label>
+                        <input type="number" id="csrAmount" placeholder="e.g. 2500000" required>
+                    </div>
+                    <div class="form-field">
+                        <label>CSR Focus Sector</label>
+                        <select id="csrFocusArea" required>
+                            <option value="Pediatric Cardiac Surgeries">Pediatric Cardiac Surgeries</option>
+                            <option value="Oncology & Bone Marrow Fund">Oncology & Bone Marrow Fund</option>
+                            <option value="Rural Dialysis & Kidney Care">Rural Dialysis & Kidney Care</option>
+                            <option value="Village Maternal & School Hygiene">Village Maternal & School Hygiene</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>CSR Contact Email</label>
+                        <input type="email" id="csrEmail" placeholder="csr.officer@company.com" required>
+                    </div>
+                    <div class="form-field">
+                        <label>MoU Agreement Reference No.</label>
+                        <input type="text" id="csrMouRef" placeholder="e.g. CSR-2026-INF-08" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-green" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; margin-top: 1rem;">+ Add CSR Partner to Foundation Portal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Doctor Medical & Treatment Report Submission Modal -->
+    <div class="ngo-modal-overlay" id="doctorReportModal">
+        <div class="ngo-modal">
+            <button class="modal-close-btn" onclick="closeDoctorReportModal()">×</button>
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem;">👨‍⚕️ Generate Clinical Treatment & Aid Report</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Submit medical evaluation & surgical disbursement recommendation to Foundation Admin</p>
+            
+            <form onsubmit="handleDoctorReportSubmit(event)">
+                <div class="form-field">
+                    <label>Patient Full Name & Case Reference</label>
+                    <input type="text" id="docReportPatient" placeholder="e.g. Aarav Kumar (#MC-8021)" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Treating Hospital</label>
+                        <input type="text" id="docReportHospital" value="KLES Dr. Prabhakar Kore Hospital Belagavi" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Attending Specialist Doctor</label>
+                        <input type="text" id="docReportDoctor" value="Dr. K. Srinivas (Pediatric Cardiology)" required>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Clinical Diagnosis & Surgical Procedure Performed</label>
+                    <textarea id="docReportDiagnosis" rows="3" placeholder="Describe surgical procedure, VSD repair details, ICU stay duration, and post-op status..." required></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Recommended Foundation Aid Amount (₹)</label>
+                        <input type="number" id="docReportAidAmount" value="342000" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Medical Board Recovery Verdict</label>
+                        <select id="docReportVerdict" required>
+                            <option value="SUCCESSFULLY OPERATED & FIT FOR DISCHARGE">SUCCESSFULLY OPERATED & FIT FOR DISCHARGE</option>
+                            <option value="CRITICAL ICU RECOVERY - AID APPROVED">CRITICAL ICU RECOVERY - AID APPROVED</option>
+                            <option value="UNDER ACTIVE MEDICAL EVALUATION">UNDER ACTIVE MEDICAL EVALUATION</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; margin-top: 0.5rem;">Submit Clinical Treatment Report to Foundation Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rural Patient Referral Modal -->
+    <div class="ngo-modal-overlay" id="ashaReferralModal">
+        <div class="ngo-modal">
+            <button class="modal-close-btn" onclick="closeAshaReferralModal()">×</button>
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem;">Refer Rural Patient for Medical Aid</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Input patient details & medical need for volunteer field verification & hospital allocation</p>
+            
+            <form onsubmit="handleAshaReferralSubmit(event)">
+                <div class="form-field">
+                    <label>Patient Full Name</label>
+                    <input type="text" id="ashaPatientName" placeholder="e.g. Parvati Patil" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Patient Age</label>
+                        <input type="number" id="ashaPatientAge" placeholder="45" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Gender</label>
+                        <select id="ashaPatientGender" required>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Village Name</label>
+                        <input type="text" id="ashaPatientVillage" placeholder="e.g. Shahapur Village" required>
+                    </div>
+                    <div class="form-field">
+                        <label>District in North Karnataka</label>
+                        <select id="ashaPatientDistrict" required>
+                            <option value="Belagavi">Belagavi</option>
+                            <option value="Hubballi-Dharwad">Hubballi-Dharwad</option>
+                            <option value="Vijayapura">Vijayapura</option>
+                            <option value="Bagalkote">Bagalkote</option>
+                            <option value="Haveri">Haveri</option>
+                            <option value="Gadag">Gadag</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Medical Need / Treatment Required</label>
+                    <select id="ashaPatientNeed" required>
+                        <option value="Pediatric Cardiac Surgery">Pediatric Cardiac Surgery</option>
+                        <option value="Cancer Care & Chemotherapy">Cancer Care & Chemotherapy</option>
+                        <option value="Kidney Transplant & Dialysis">Kidney Transplant & Dialysis</option>
+                        <option value="Maternal & High Risk Pregnancy">Maternal & High Risk Pregnancy</option>
+                        <option value="Trauma & Emergency ICU">Trauma & Emergency ICU</option>
+                        <option value="General Surgery">General Surgery</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Urgency Level</label>
+                        <select id="ashaPatientUrgency" required>
+                            <option value="NORMAL">NORMAL (Standard Case)</option>
+                            <option value="URGENT">URGENT (High Priority)</option>
+                            <option value="EMERGENCY">EMERGENCY (ICU / 24-hr Bypass)</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Approx. Annual Family Income (₹)</label>
+                        <input type="number" id="ashaPatientIncome" placeholder="e.g. 45000" required>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label>Recommended Hospital</label>
+                    <select id="ashaPatientHospital" required>
+                        <option value="KLES Dr. Prabhakar Kore Hospital, Belagavi">KLES Dr. Prabhakar Kore Hospital, Belagavi</option>
+                        <option value="Tatwadarsha Hospital, Hubballi">Tatwadarsha Hospital, Hubballi</option>
+                        <option value="SDM Medical College & Hospital, Dharwad">SDM Medical College & Hospital, Dharwad</option>
+                        <option value="BLDE Shri B. M. Patil Hospital, Vijayapura">BLDE Shri B. M. Patil Hospital, Vijayapura</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label>ASHA Worker / Referrer Notes & Hardship Details</label>
+                    <textarea id="ashaPatientNotes" rows="3" placeholder="Briefly describe medical condition, BPL card availability, or emergency status..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-purple" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; margin-top: 0.5rem;">+ Submit Rural Patient Referral for Field Audit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Patient Registration Modal with Document Upload & Verification -->
+    <div class="ngo-modal-overlay" id="patientRegisterModal">
+        <div class="ngo-modal">
+            <button class="modal-close-btn" onclick="closePatientRegisterModal()">×</button>
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem;">Patient Medical Aid Registration</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Free field verification & crowdfunding support for North Karnataka patients</p>
+            
+            <form onsubmit="handlePatientRegistrationSubmit(event)">
+                <div class="form-field">
+                    <label>Patient Full Name</label>
+                    <input type="text" id="regPatientName" placeholder="e.g. Ramesh Kumar" required>
+                </div>
+                <div class="form-field">
+                    <label>Email Address (Your Sign-In Username)</label>
+                    <input type="email" id="regPatientEmail" placeholder="ramesh@email.com" required>
+                </div>
+                <div class="form-field">
+                    <label>Contact Phone Number</label>
+                    <input type="tel" id="regPatientPhone" placeholder="+91 98450 11223" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>District in North Karnataka</label>
+                        <select id="regPatientDistrict" required>
+                            <option value="Belagavi">Belagavi</option>
+                            <option value="Hubballi-Dharwad">Hubballi-Dharwad</option>
+                            <option value="Vijayapura">Vijayapura</option>
+                            <option value="Bagalkote">Bagalkote</option>
+                            <option value="Haveri">Haveri</option>
+                            <option value="Gadag">Gadag</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>Assigned Hospital</label>
+                        <select id="regPatientHospital" required>
+                            <option value="KLES Dr. Prabhakar Kore Hospital, Belagavi">KLES Dr. Prabhakar Kore Hospital, Belagavi</option>
+                            <option value="Tatwadarsha Hospital, Hubballi">Tatwadarsha Hospital, Hubballi</option>
+                            <option value="SDM Medical College & Hospital, Dharwad">SDM Medical College & Hospital, Dharwad</option>
+                            <option value="BLDE Shri B. M. Patil Hospital, Vijayapura">BLDE Shri B. M. Patil Hospital, Vijayapura</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Legitimate Document Upload & Verification Section -->
+                <div style="background: #f0fdf4; border: 1.5px solid #0d9488; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+                    <div style="font-weight: 800; font-size: 0.85rem; color: #0f766e; margin-bottom: 0.6rem;">🛡️ Mandatory Identity Document Audit (Required for Sign-In Approval)</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-field" style="margin-bottom: 0.5rem;">
+                            <label>Document Type</label>
+                            <select id="regPatientDocType" required>
+                                <option value="Aadhaar Card">Aadhaar Card (12-Digit UIDAI)</option>
+                                <option value="BPL Ration Card">BPL Ration Card</option>
+                                <option value="Ayushman Bharat Card">Ayushman Bharat Card</option>
+                            </select>
+                        </div>
+                        <div class="form-field" style="margin-bottom: 0.5rem;">
+                            <label>Document Ref Number</label>
+                            <input type="text" id="regPatientDocNo" placeholder="e.g. 4829 1049 2840" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Set Password Section -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Set Account Password</label>
+                        <input type="password" id="regPatientPassword" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Confirm Password</label>
+                        <input type="password" id="regPatientConfirmPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-green" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; margin-top: 1rem;">Register Patient & Submit Document for Audit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Volunteer Registration Modal with Document Upload & Verification -->
+    <div class="ngo-modal-overlay" id="volunteerRegisterModal">
+        <div class="ngo-modal">
+            <button class="modal-close-btn" onclick="closeVolunteerRegisterModal()">×</button>
+            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.4rem;">Join as Field Volunteer</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Help verify medical cases in your district across North Karnataka</p>
+            
+            <form onsubmit="handleVolunteerRegistrationSubmit(event)">
+                <div class="form-field">
+                    <label>Volunteer Full Name</label>
+                    <input type="text" id="regVolName" placeholder="e.g. Anand Kulkarni" required>
+                </div>
+                <div class="form-field">
+                    <label>Email Address (Your Sign-In Username)</label>
+                    <input type="email" id="regVolEmail" placeholder="volunteer@vishwasa.org" required>
+                </div>
+                <div class="form-field">
+                    <label>Phone Number</label>
+                    <input type="tel" id="regVolPhone" placeholder="+91 97410 55667" required>
+                </div>
+                <div class="form-field">
+                    <label>Assigned District / Zone</label>
+                    <select id="regVolDistrict" required>
+                        <option value="Belagavi (HQ)">Belagavi (HQ)</option>
+                        <option value="Hubballi-Dharwad">Hubballi-Dharwad</option>
+                        <option value="Vijayapura">Vijayapura</option>
+                        <option value="Bagalkote">Bagalkote</option>
+                        <option value="Haveri">Haveri</option>
+                        <option value="Gadag">Gadag</option>
+                    </select>
+                </div>
+
+                <!-- Legitimate Document Upload & Verification Section -->
+                <div style="background: #fdfaef; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+                    <div style="font-weight: 800; font-size: 0.85rem; color: #b45309; margin-bottom: 0.6rem;">🛡️ Mandatory Identity Document Audit (Required for Sign-In Approval)</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-field" style="margin-bottom: 0.5rem;">
+                            <label>Identity Document Type</label>
+                            <select id="regVolDocType" required>
+                                <option value="Voter ID Card">Voter ID Card (EPIC)</option>
+                                <option value="Aadhaar Card">Aadhaar Card (12-Digit)</option>
+                                <option value="Driving License">Driving License</option>
+                            </select>
+                        </div>
+                        <div class="form-field" style="margin-bottom: 0.5rem;">
+                            <label>Document ID Ref Number</label>
+                            <input type="text" id="regVolDocNo" placeholder="e.g. KA-08-2024001" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Set Password Section -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Set Account Password</label>
+                        <input type="password" id="regVolPassword" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Confirm Password</label>
+                        <input type="password" id="regVolConfirmPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gold" style="width: 100%; justify-content: center; padding: 0.9rem; font-size: 1rem; margin-top: 1rem;">Register Volunteer & Submit ID for Audit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hidden Offscreen Container for Genuine PDF Export -->
+    <div id="pdfRenderContainer" style="position: absolute; left: -9999px; top: -9999px; width: 800px;"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
