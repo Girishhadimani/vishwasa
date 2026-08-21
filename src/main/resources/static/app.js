@@ -2642,12 +2642,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Navbar Options Active Color Highlighter
+    // Navbar Options Active Color Highlighter (persists active state until clicked elsewhere)
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', (e) => {
             navItems.forEach(n => n.classList.remove('active'));
             e.currentTarget.classList.add('active');
+        });
+    });
+
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', () => {
+            navItems.forEach(n => n.classList.remove('active'));
+            const medAppealBtn = document.querySelector('.nav-dropdown-wrapper .nav-item');
+            if (medAppealBtn) medAppealBtn.classList.add('active');
         });
     });
 
