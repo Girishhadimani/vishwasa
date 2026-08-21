@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ["maven", "openjdk21"]
-
-[phases.build]
-cmds = ["mvn clean package -DskipTests"]
-
-[start]
-cmd = "java -Djava.net.preferIPv4Stack=true -jar target/vishwasa-1.0.0.jar --server.port=$PORT"
