@@ -2240,13 +2240,108 @@ function closeAshaReferralModal() {
     document.getElementById('ashaReferralModal').classList.remove('active');
 }
 
+// Organ Donor Pledge Modal Functions
+function openOrganDonorModal() {
+    document.getElementById('organDonorModal').classList.add('active');
+    document.getElementById('organDonorForm').style.display = 'block';
+    document.getElementById('donorCardResult').style.display = 'none';
+}
+
+function closeOrganDonorModal() {
+    document.getElementById('organDonorModal').classList.remove('active');
+}
+
+function handleOrganDonorSubmit(e) {
+    e.preventDefault();
+    const name = document.getElementById('odFullName').value || 'Anish Kulkarni';
+    const phone = document.getElementById('odPhone').value || '9845012345';
+    const age = document.getElementById('odAge').value || '28';
+    const blood = document.getElementById('odBloodGroup').value || 'O+';
+    const district = document.getElementById('odDistrict').value || 'Belagavi';
+    const kinName = document.getElementById('odKinName').value || 'Ramesh Kulkarni';
+    const kinPhone = document.getElementById('odKinPhone').value || '9845000000';
+
+    const checkedBoxes = document.querySelectorAll('input[name="pledgedOrgans"]:checked');
+    const organs = Array.from(checkedBoxes).map(cb => cb.value).join(', ') || 'All Organs';
+
+    const refId = 'OD-' + Math.floor(10000 + Math.random() * 90000);
+
+    document.getElementById('cardRefId').innerText = refId;
+    document.getElementById('cardDonorName').innerText = name;
+    document.getElementById('cardBloodGroup').innerText = blood;
+    document.getElementById('cardAgeDistrict').innerText = `${age} yrs • ${district}`;
+    document.getElementById('cardOrgans').innerText = organs;
+    document.getElementById('cardKinInfo').innerText = `${kinName} (${kinPhone})`;
+
+    document.getElementById('organDonorForm').style.display = 'none';
+    document.getElementById('donorCardResult').style.display = 'block';
+
+    alert(`🎉 Thank you ${name}! Your Organ Donor Pledge (${refId}) has been registered! You can now download your digital Vishwasa Organ Donor Card.`);
+}
+
+function downloadDonorCardPDF() {
+    const name = document.getElementById('cardDonorName').innerText || 'Donor';
+    const ref = document.getElementById('cardRefId').innerText || 'OD-88201';
+    const blood = document.getElementById('cardBloodGroup').innerText || 'O+';
+    const organs = document.getElementById('cardOrgans').innerText || 'All Organs';
+    const kin = document.getElementById('cardKinInfo').innerText || 'Family Contact';
+
+    const element = document.createElement('div');
+    element.style.padding = '30px';
+    element.style.background = '#0f172a';
+    element.style.color = '#ffffff';
+    element.style.fontFamily = 'sans-serif';
+    element.style.borderRadius = '16px';
+    element.style.border = '4px solid #2dd4bf';
+
+    element.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #5eead4; padding-bottom: 15px; margin-bottom: 20px;">
+            <div>
+                <h1 style="font-size: 22px; margin: 0; color: #5eead4;">VISHWASA ORGAN DONOR PLEDGE CARD</h1>
+                <p style="font-size: 13px; margin: 5px 0 0; color: #94a3b8;">Govt of India NOTTO Affiliated Drive • Belagavi HQ</p>
+            </div>
+            <div style="font-size: 14px; font-weight: bold; color: #f59e0b; background: rgba(245,158,11,0.2); padding: 6px 12px; border-radius: 20px;">Ref #${ref}</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 14px; line-height: 1.8;">
+            <div><strong style="color: #94a3b8;">Donor Full Name:</strong><br><span style="font-size: 18px; font-weight: bold; color: #ffffff;">${name}</span></div>
+            <div><strong style="color: #94a3b8;">Blood Group:</strong><br><span style="font-size: 20px; font-weight: bold; color: #2dd4bf;">${blood}</span></div>
+            <div style="grid-column: span 2;"><strong style="color: #94a3b8;">Pledged Organs:</strong><br><span style="color: #5eead4; font-weight: bold;">${organs}</span></div>
+            <div style="grid-column: span 2;"><strong style="color: #94a3b8;">Emergency Next of Kin:</strong><br>${kin}</div>
+        </div>
+
+        <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.2); text-align: center; font-size: 11px; color: #cbd5e1;">
+            ❤️ "I have pledged my organs to save lives after my death. Please respect my wish." • Vishwasa Healthcare Foundation
+        </div>
+    `;
+
+    const container = document.getElementById('pdfRenderContainer');
+    container.innerHTML = '';
+    container.appendChild(element);
+
+    if (window.html2canvas && window.jspdf) {
+        html2canvas(element, { scale: 2 }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jspdf.jsPDF('p', 'mm', 'a5');
+            const imgWidth = 138;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', 5, 10, imgWidth, imgHeight);
+            pdf.save(`Vishwasa_Organ_Donor_Card_${name.replace(/\s+/g, '_')}.pdf`);
+            container.innerHTML = '';
+        });
+    } else {
+        window.print();
+    }
+}
+
 async function checkBackendHealth() {
     try {
         const res = await fetch(`${API_BASE}/status`);
         if (res.ok) {
-            console.log("✅ Connected to Spring Boot & PostgreSQL 18 database!");
+            console.log("✅ Connected to Spring Boot & PostgreSQL database!");
         }
     } catch (e) {
         console.log("Vishwasa Platform active");
     }
 }
+

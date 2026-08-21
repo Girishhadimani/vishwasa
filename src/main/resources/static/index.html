@@ -201,7 +201,10 @@
                 <div style="font-size: 0.8rem; color: #5eead4; margin-bottom: 1.5rem;">
                     📌 Note: As mandated by Indian organ transplantation regulations, online pledging provides an official card, while family/next-of-kin consent remains essential.
                 </div>
-                <a href="https://notto.mohfw.gov.in/" target="_blank" class="btn btn-green" style="padding: 0.9rem 1.8rem;">Pledge Officially on NOTTO (Govt of India) ↗</a>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-gold" onclick="openOrganDonorModal()" style="padding: 0.9rem 1.8rem;">🫀 Register Organ Donor Pledge & Get Card</button>
+                    <a href="https://notto.mohfw.gov.in/" target="_blank" class="btn btn-outline-green" style="border-color: #5eead4; color: #5eead4; padding: 0.9rem 1.8rem;">NOTTO Portal (Govt of India) ↗</a>
+                </div>
             </div>
 
             <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-md); padding: 2rem;">
@@ -213,6 +216,7 @@
             </div>
         </div>
     </section>
+
 
     <!-- Partner Hospitals Section -->
     <section id="hospitals" class="section" style="background: var(--bg-soft); border-radius: var(--radius-lg);">
@@ -904,9 +908,117 @@
         </div>
     </div>
 
+    <!-- Organ Donor Pledge Registration Modal -->
+    <div class="ngo-modal-overlay" id="organDonorModal">
+        <div class="ngo-modal" style="max-width: 650px;">
+            <button class="modal-close-btn" onclick="closeOrganDonorModal()">&times;</button>
+            <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+                <span style="font-size: 2rem;">🫀</span>
+                <div>
+                    <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--primary-dark);">Organ Donor Pledge Registration</h3>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Pledge to save up to 8 lives. Get your instant digital Vishwasa Organ Donor Card.</p>
+                </div>
+            </div>
+
+            <form id="organDonorForm" onsubmit="handleOrganDonorSubmit(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Full Name *</label>
+                        <input type="text" id="odFullName" placeholder="e.g. Anish Kulkarni" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Phone Number *</label>
+                        <input type="tel" id="odPhone" placeholder="e.g. 9845012345" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Age *</label>
+                        <input type="number" id="odAge" min="18" max="100" placeholder="e.g. 28" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Blood Group *</label>
+                        <select id="odBloodGroup" required>
+                            <option value="">Select</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label>District *</label>
+                        <select id="odDistrict" required>
+                            <option value="Belagavi">Belagavi</option>
+                            <option value="Dharwad">Dharwad / Hubballi</option>
+                            <option value="Vijayapura">Vijayapura</option>
+                            <option value="Bagalkote">Bagalkote</option>
+                            <option value="Uttara Kannada">Uttara Kannada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-field">
+                    <label>Select Organs to Pledge *</label>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.4rem;">
+                        <label style="font-weight: normal; font-size: 0.85rem;"><input type="checkbox" name="pledgedOrgans" value="Kidneys" checked> 🫘 Kidneys</label>
+                        <label style="font-weight: normal; font-size: 0.85rem;"><input type="checkbox" name="pledgedOrgans" value="Heart" checked> 🫀 Heart</label>
+                        <label style="font-weight: normal; font-size: 0.85rem;"><input type="checkbox" name="pledgedOrgans" value="Liver" checked> 🫁 Liver</label>
+                        <label style="font-weight: normal; font-size: 0.85rem;"><input type="checkbox" name="pledgedOrgans" value="Lungs" checked> 🫁 Lungs</label>
+                        <label style="font-weight: normal; font-size: 0.85rem;"><input type="checkbox" name="pledgedOrgans" value="Corneas" checked> 👁️ Eyes / Corneas</label>
+                        <label style="font-weight: normal; font-size: 0.85rem;"><input type="checkbox" name="pledgedOrgans" value="Pancreas" checked> 🧬 Pancreas</label>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-field">
+                        <label>Emergency Kin Name *</label>
+                        <input type="text" id="odKinName" placeholder="Family / Relative Name" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Emergency Kin Phone *</label>
+                        <input type="tel" id="odKinPhone" placeholder="Relative Phone Number" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.9rem; font-size: 1rem; font-weight: 800; justify-content: center; margin-top: 0.5rem;">
+                    🫀 Complete Organ Pledge & Generate Card
+                </button>
+            </form>
+
+            <div id="donorCardResult" style="display: none; margin-top: 1.5rem; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 12px; padding: 1.5rem; color: #ffffff; border: 2px solid #5eead4;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 0.8rem; margin-bottom: 1rem;">
+                    <div>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #5eead4;">VISHWASA ORGAN DONOR PLEDGE CARD</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Govt of India NOTTO Affiliated Drive • Ref #<span id="cardRefId">OD-88201</span></div>
+                    </div>
+                    <img src="images/brand-logo.png" style="width: 36px; height: 36px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.85rem; margin-bottom: 1.2rem;">
+                    <div><strong>Donor Name:</strong> <span id="cardDonorName">Anish Kulkarni</span></div>
+                    <div><strong>Blood Group:</strong> <span id="cardBloodGroup" style="color: #2dd4bf; font-weight: 800;">O+</span></div>
+                    <div><strong>Age / District:</strong> <span id="cardAgeDistrict">28 yrs • Belagavi</span></div>
+                    <div><strong>Pledged Organs:</strong> <span id="cardOrgans">All Organs</span></div>
+                    <div style="grid-column: span 2;"><strong>Next of Kin:</strong> <span id="cardKinInfo">Ramesh (9845000000)</span></div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="btn btn-green btn-sm" onclick="downloadDonorCardPDF()">📥 Download Official Organ Donor Card (PDF)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Hidden Offscreen Container for Genuine PDF Export -->
     <div id="pdfRenderContainer" style="position: absolute; left: -9999px; top: -9999px; width: 800px;"></div>
 
     <script src="app.js"></script>
 </body>
+
 </html>
