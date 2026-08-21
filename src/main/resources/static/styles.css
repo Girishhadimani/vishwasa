@@ -410,10 +410,10 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=1920&q=80');
+    background-image: url('images/hero-bg-hands.jpg');
     background-size: cover;
     background-position: center;
-    opacity: 0.35;
+    opacity: 0.45;
 }
 
 .hero-content-grid {
