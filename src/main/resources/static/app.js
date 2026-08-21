@@ -2630,8 +2630,77 @@ function approveDoctorReport(reportId) {
     }
 }
 
+function renderCampaigns() {
+    const grid = document.getElementById('campaignGrid');
+    if (!grid) return;
+
+    const cases = activeMedicalCases || [];
+    grid.innerHTML = cases.map(c => `
+        <div class="campaign-card" style="background: #ffffff; border-radius: 16px; border: 1.5px solid #e2e8f0; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="position: relative; height: 200px; overflow: hidden;">
+                <img src="${c.imageUrl}" alt="${c.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                <span style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.85); color: #5eead4; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase;">${c.category}</span>
+                <span style="position: absolute; top: 12px; right: 12px; background: #0d9488; color: #ffffff; font-size: 0.75rem; font-weight: 800; padding: 4px 10px; border-radius: 20px;">${c.urgency}</span>
+            </div>
+            
+            <div style="padding: 1.5rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; line-height: 1.4;">${c.title}</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1rem;">Patient: <strong>${c.patientName}</strong> • ${c.hospitalName}</p>
+                    
+                    <div style="background: #f8fafc; border-radius: 8px; padding: 0.8rem; margin-bottom: 1rem; font-size: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 0.4rem;">
+                            <span style="color: #0d9488;">Raised: ₹${c.currentAmount.toLocaleString('en-IN')}</span>
+                            <span style="color: #64748b;">Goal: ₹${c.targetAmount.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                            <div style="width: ${Math.min(100, Math.round((c.currentAmount / c.targetAmount) * 100))}%; height: 100%; background: linear-gradient(90deg, #0d9488, #2dd4bf); border-radius: 4px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.5rem;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: #0d9488;">👥 ${c.donorCount} Donors</span>
+                    <button class="btn btn-coral btn-sm" onclick="openDonateModal(${c.id}, '${c.title.replace(/'/g, "\\'")}', ${c.netRequired || 1000})">Donate Now</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderHospitals() {
+    const grid = document.getElementById('hospitalGrid');
+    if (!grid) return;
+
+    const hospitals = [
+        { name: "KLES Dr. Prabhakar Kore Hospital, Belagavi", type: "1,400 Beds • Super Speciality Cardiac & ICU", loc: "Club Road, Belagavi 590001", phone: "+91 0831 247-3777", beds: "12 ICU Beds Reserved", status: "VERIFIED PARTNER" },
+        { name: "Tatwadarsha Hospital, Hubballi", type: "Nephrology & Organ Transplant Center", loc: "Vidyanagar, Hubballi 580021", phone: "+91 0836 237-8899", beds: "8 Dialysis Units", status: "VERIFIED PARTNER" },
+        { name: "SDM Medical College & Hospital, Dharwad", type: "1,200 Beds • Teaching Hospital", loc: "Sattur, Dharwad 580009", phone: "+91 0836 247-7777", beds: "15 Scheme Beds", status: "VERIFIED PARTNER" },
+        { name: "BLDE Shri B. M. Patil Medical College, Vijayapura", type: "Specialty Oncology & Emergency Care", loc: "Solapur Road, Vijayapura 586103", phone: "+91 08352 262-770", beds: "10 Oncology Beds", status: "VERIFIED PARTNER" }
+    ];
+
+    grid.innerHTML = hospitals.map(h => `
+        <div style="background: #ffffff; border-radius: 16px; border: 1.5px solid #e2e8f0; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <span class="dash-status-pill status-active" style="margin-bottom: 0.8rem; display: inline-block;">✅ ${h.status}</span>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem;">${h.name}</h3>
+                <p style="font-size: 0.85rem; color: #0d9488; font-weight: 700; margin-bottom: 0.4rem;">${h.type}</p>
+                <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem;">📍 ${h.loc}</p>
+            </div>
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #0f766e;">🛏️ ${h.beds}</span>
+                <a href="tel:${h.phone}" class="btn btn-outline-green btn-sm">📞 ${h.phone}</a>
+            </div>
+        </div>
+    `).join('');
+}
+
 // Initialize Donation Presets & Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    renderCampaigns();
+    renderHospitals();
+    renderDistrictMap('belagavi');
+
     const presetBtns = document.querySelectorAll('.preset-btn');
     presetBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -2653,6 +2722,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateHeroDonateButtonText();
 });
+
 
 
 
