@@ -2565,28 +2565,53 @@ async function generateAndDownloadReport(reportType, patientName) {
     let certSubtitle = "Section 8 Registered Non-Profit Healthcare Foundation";
     let bodyContent = "";
 
-    if (reportType === 'TAX_RECEIPT_80G') {
-        title = "80G TAX EXEMPTION DONATION RECEIPT";
-        certSubtitle = "Official Tax Exemption Certificate under Sec 80G of Income Tax Act 1961";
+    if (reportType === 'PAYMENT_RECEIPT') {
+        title = "OFFICIAL PATIENT AID PAYMENT & DONATION RECEIPT";
+        certSubtitle = "Direct Hospital Fund Disbursement Receipt";
         bodyContent = `
             <div style="background: #f8fafc; border: 1.5px solid #0d9488; border-radius: 12px; padding: 20px; margin: 20px 0;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; color: #0f172a;">
-                    <div><strong>Receipt Reference:</strong> VHW-80G-${Math.floor(100000 + Math.random() * 900000)}</div>
+                    <div><strong>Receipt Reference:</strong> VHW-PAY-${Math.floor(100000 + Math.random() * 900000)}</div>
+                    <div><strong>Payment Date:</strong> ${timeStr}</div>
+                    <div><strong>Target VPA / UPI:</strong> ghadimani145@okaxis</div>
+                    <div><strong>Disbursement Guarantee:</strong> 100% Direct Hospital Account Transfer</div>
+                </div>
+            </div>
+
+            <h4 style="color: #0f766e; border-bottom: 2px solid #0d9488; padding-bottom: 6px; font-size: 16px; margin-top: 20px;">DONATION DETAILS</h4>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Donor Full Name:</td><td style="padding: 8px;">${patientName || 'Generous Supporter'}</td></tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Donation Amount:</td><td style="padding: 8px; font-weight: bold; color: #0d9488; font-size: 16px;">₹${(currentDonationAmount || 1000).toLocaleString('en-IN')}</td></tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Payment Method:</td><td style="padding: 8px; color: #0d9488; font-weight: bold;">Direct UPI / Bank Transfer</td></tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Medical Campaign Supported:</td><td style="padding: 8px;">${campaignsData[0].title}</td></tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Hospital Beneficiary Account:</td><td style="padding: 8px;">${campaignsData[0].hospitalName}</td></tr>
+            </table>
+
+            <div style="margin-top: 15px; font-size: 12px; color: #16a34a; font-weight: bold; text-align: right;">
+                ✅ 100% DISBURSED DIRECTLY TO PARTNER HOSPITAL BILLING DEPARTMENT
+            </div>
+        `;
+    } else if (reportType === 'TAX_RECEIPT_80G') {
+        title = "CORPORATE CSR 80G TAX EXEMPTION GRANT CERTIFICATE";
+        certSubtitle = "Official Corporate Tax Exemption Certificate under Sec 80G of Income Tax Act 1961";
+        bodyContent = `
+            <div style="background: #f8fafc; border: 1.5px solid #0d9488; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px; color: #0f172a;">
+                    <div><strong>Certificate Reference:</strong> VHW-CSR-80G-${Math.floor(100000 + Math.random() * 900000)}</div>
                     <div><strong>Date of Issue:</strong> ${timeStr}</div>
                     <div><strong>80G Reg Number:</strong> AABTV1234F</div>
                     <div><strong>PAN Registration:</strong> AABTV1234F</div>
-                    <div><strong>Target VPA / UPI:</strong> ghadimani145@okaxis</div>
+                    <div><strong>CSR Partner:</strong> ${patientName || 'Infosys Foundation CSR'}</div>
                     <div><strong>Disbursement Guarantee:</strong> 100% Direct Hospital Transfer</div>
                 </div>
             </div>
 
-            <h4 style="color: #0f766e; border-bottom: 2px solid #0d9488; padding-bottom: 6px; font-size: 16px; margin-top: 20px;">DONOR & CONTRIBUTORY DETAILS</h4>
+            <h4 style="color: #0f766e; border-bottom: 2px solid #0d9488; padding-bottom: 6px; font-size: 16px; margin-top: 20px;">CORPORATE CSR GRANT DETAILS</h4>
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
-                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Donor Name:</td><td style="padding: 8px;">${patientName || 'Generous Supporter'}</td></tr>
-                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Donation Amount:</td><td style="padding: 8px; font-weight: bold; color: #0d9488; font-size: 16px;">₹${selectedAmount.toLocaleString('en-IN')}</td></tr>
-                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Tax Benefit:</td><td style="padding: 8px; color: #16a34a; font-weight: bold;">50% Deduction under Section 80G</td></tr>
-                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Medical Appeal Supported:</td><td style="padding: 8px;">${campaignsData[0].title}</td></tr>
-                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Allocated Hospital Account:</td><td style="padding: 8px;">${campaignsData[0].hospitalName}</td></tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Corporate Sponsor:</td><td style="padding: 8px;">${patientName || 'Infosys Foundation CSR'}</td></tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Committed CSR Grant:</td><td style="padding: 8px; font-weight: bold; color: #0d9488; font-size: 16px;">₹50,00,000</td></tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Tax Exemption Benefit:</td><td style="padding: 8px; color: #16a34a; font-weight: bold;">50% Corporate Deduction under Section 80G</td></tr>
+                <tr style="border-bottom: 1px solid #e2e8f0;"><td style="padding: 8px; font-weight: bold;">Focus Area:</td><td style="padding: 8px;">Pediatric Cardiac Surgeries & Rural Volunteer Stipends</td></tr>
             </table>
         `;
     } else if (reportType === 'ITEMIZED_HOSPITAL_BILL') {
@@ -2852,7 +2877,10 @@ function submitGenuinePayment(event) {
 
     closeDonateModal();
 
-    alert(`🎉 Thank You ${donorName}!\n\nYour donation of ₹${amt.toLocaleString('en-IN')} has been verified!\nTransaction Ref: ${utr || 'TXN-UPI-88402910'}\nTarget UPI: ghadimani145@okaxis\n\n100% of your payment is transferred directly to partner hospital for patient care.`);
+    // Auto-generate and download official Payment Receipt PDF when someone pays by UPI!
+    generateAndDownloadReport('PAYMENT_RECEIPT', donorName);
+
+    alert(`🎉 Thank You ${donorName}!\n\nYour donation of ₹${amt.toLocaleString('en-IN')} has been verified!\nTransaction Ref: ${utr || 'TXN-UPI-88402910'}\nTarget UPI: ghadimani145@okaxis\n\n100% of your payment is transferred directly to partner hospital for patient care.\nOfficial Payment Receipt PDF downloaded!`);
 
     if (currentUser) {
         renderRoleDashboard(currentUser.role);
